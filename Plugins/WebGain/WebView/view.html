@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple GUI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    #output {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Simple GUI</h1>
+
+  <button id="myButton_simple">Send simple messge!</button>
+  <button id="myButton_json">Send json object!</button>
+
+  <!-- HTML element to display the message -->
+  <label id="outputLabel">Message will appear here</label>
+
+  <p>Slider Value: <span id="sliderValue">50</span></p>
+  <input type="range" min="0" max="100" value="50" id="mySlider">
+
+  <div id="output"></div>
+
+  <script>
+    // JavaScript code for handling button and slider events
+    document.getElementById('myButton_simple').addEventListener('click', function() {
+      document.getElementById('output').innerText = 'Button Clicked!';
+      onClickButton("Button Clicked!");
+    });
+
+    // JavaScript code for handling button and slider events
+    document.getElementById('myButton_json').addEventListener('click', function() {
+        const jsonData = {
+          message: 'Button Clicked!',
+          sliderValue: parseInt(document.getElementById('sliderValue').innerText),
+          someArray: [1, 2, 3, 4, 5]
+        };
+  
+        // Convert JSON data to a string for display
+        const jsonString = JSON.stringify(jsonData, null, 2);
+        
+        document.getElementById('output').innerText = jsonString;
+        onClickButton(jsonData);
+    });
+
+    const slider = document.getElementById('mySlider');
+    const output = document.getElementById('sliderValue');
+
+    slider.addEventListener('input', function() {
+      output.innerText = slider.value;
+      onSliderChanged(slider.value)
+    });
+
+    // JavaScript code defining the Hello function
+    function Hello() {
+      // This is the function that will be called from C++
+      console.log('Hello from JavaScript!');
+      
+      // You can perform other actions or return data as needed
+    }
+
+    // JavaScript code defining the Hello function
+    function HelloWithJson(jsonData) {
+      // This is the function that will be called from C++
+      console.log('HelloWithJson: ', jsonData);
+      
+      // Access the 'message' property in the JSON data
+      var message = jsonData.message;
+
+      // Update the HTML label with the message
+      document.getElementById('outputLabel').innerText = 'Message from C++: ' + message;
+
+      // You can perform other actions or return data as needed
+    }
+  </script>
+
+</body>
+</html>

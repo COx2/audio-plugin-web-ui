@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js Boilerplate</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/loaders/RGBELoader.js"></script>
+    <script>
+        // Create the scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x00aaff);
+        
+        const light = new THREE.DirectionalLight(0xffffff);
+        light.position.set(0, 0.5, 1);
+        scene.add(light);
+        
+        // Create the camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        // Create the renderer
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Load the 3D model
+        const loader = new THREE.GLTFLoader();
+        const modelUrl = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb";
+        
+        let model = null;
+        loader.load(modelUrl, function (gltf) {
+            scene.add(gltf.scene);
+            model = gltf.scene;
+ 
+            const bbox = new THREE.Box3().setFromObject(scene);            
+            const bsize = bbox.getSize(new THREE.Vector3());
+            const radius = bsize.length();
+            // Position the camera to view entire model.
+            camera.position.z = radius;
+        });        
+        
+        // Create environment map for background and reflection 
+        const envmap = new THREE.RGBELoader()
+            .setPath('https://threejs.org/examples/textures/equirectangular/')
+            .load('royal_esplanade_1k.hdr', function (texture) {
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+ 
+                scene.background = texture;
+                scene.environment = texture;
+            });
+        
+        // Variables for mouse control
+        const mouse = new THREE.Vector2();
+        const raycaster = new THREE.Raycaster();
+        let isMouseDown = false;
+        let targetRotation = new THREE.Vector2(0, 0);
+        let targetRotationOnMouseDown = new THREE.Vector2(0, 0);
+ 
+        // Event listeners for mouse control
+        document.addEventListener('mousedown', onDocumentMouseDown, false);
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        document.addEventListener('mouseup', onDocumentMouseUp, false);
+ 
+        function onDocumentMouseDown(event) {
+            event.preventDefault();
+            isMouseDown = true;
+            targetRotationOnMouseDown.x = targetRotation.x;
+            targetRotationOnMouseDown.y = targetRotation.y;
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+ 
+        function onDocumentMouseMove(event) {
+            if (isMouseDown) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                targetRotation.x = targetRotationOnMouseDown.x + (mouse.x - targetRotationOnMouseDown.x) * 0.02 * 100;
+                targetRotation.y = targetRotationOnMouseDown.y + (mouse.y - targetRotationOnMouseDown.y) * 0.02 * 100;
+            }
+        }
+ 
+        function onDocumentMouseUp(event) {
+            isMouseDown = false;
+        }
+        
+        // Animate the scene
+        function animate() {
+            requestAnimationFrame(animate);
+ 
+            if (model) {
+                model.rotation.x += (targetRotation.y - model.rotation.x) * 0.05;
+                model.rotation.y += (targetRotation.x - model.rotation.y) * 0.05;
+            }
+ 
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>

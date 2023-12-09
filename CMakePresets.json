@@ -1,0 +1,53 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja Multi-Config",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": {
+                    "type": "BOOL",
+                    "value": true
+                }
+            }
+        },
+        {
+            "name": "vs2022",
+            "inherits": [
+                "base"
+            ],
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "targets":[
+                "WebViewPluginExample_All"
+            ]
+        },
+        {
+            "name": "vs2022-debug",
+            "description": "Build using Visual Studio 17 2022 for Debug",
+            "configurePreset": "vs2022",
+            "configuration": "Debug",
+            "inherits": "base"
+        },
+        {
+            "name": "vs2022-release",
+            "description": "Build using Visual Studio 17 2022 for Release",
+            "configurePreset": "vs2022",
+            "configuration": "Release",
+            "inherits": "base"
+        }
+    ]
+}
