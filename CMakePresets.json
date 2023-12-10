@@ -58,7 +58,9 @@
                 "WebGain_All",
                 "WebGain_CLAP",
                 "threejs-synth_All",
-                "threejs-synth_CLAP"
+                "threejs-synth_CLAP",
+                "p5js-synth_All",
+                "p5js-synth_CLAP"
             ]
         },
         {
