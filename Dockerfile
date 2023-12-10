@@ -3,6 +3,7 @@ FROM ubuntu:latest AS base
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git \
+    build-essential \
     clang-11 \
     cmake \
     ninja-build \
@@ -27,10 +28,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 
 # Make sure clang is the default compiler:
 RUN DEBIAN_FRONTEND=noninteractive \
-    update-alternatives --install /usr/bin/cc cc /usr/bin/clang-11 100
+    update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-11 100
 
 RUN DEBIAN_FRONTEND=noninteractive \
-    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-11 100
+    update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 100
     
 # Custom build phase
 COPY . /app
