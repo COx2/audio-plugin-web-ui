@@ -39,6 +39,15 @@
             "inherits": [
                 "base"
             ]
+        },
+        {
+            "name": "xcode",
+            "displayName": "Xcode",
+            "description": "Default build using Xcode generator",
+            "inherits": [
+                "base"
+            ],
+            "generator": "Xcode"
         }
     ],
     "buildPresets": [
@@ -75,6 +84,20 @@
             "name": "ninja-release",
             "description": "Build using Ninja for Release",
             "configurePreset": "ninja-multi",
+            "configuration": "Release",
+            "inherits": "base"
+        },
+        {
+            "name": "xcode-debug",
+            "description": "Build using Xcode for Debug",
+            "configurePreset": "xcode",
+            "configuration": "Debug",
+            "inherits": "base"
+        },
+        {
+            "name": "xcode-release",
+            "description": "Build using Xcode for Release",
+            "configurePreset": "xcode",
             "configuration": "Release",
             "inherits": "base"
         }
