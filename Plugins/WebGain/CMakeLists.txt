@@ -57,14 +57,14 @@ target_include_directories(${BaseTargetName}
 
 target_link_libraries(${BaseTargetName}
     PRIVATE
-        "${BaseTargetName}_WebViewBundle"
         juce::juce_gui_extra
         juce::juce_audio_utils
         juce::juce_audio_devices
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags)
+        juce::juce_recommended_warning_flags
+        "${BaseTargetName}_WebViewBundle")
 
 # On OSX, need to add the WebKit framework for WebView functionality
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
