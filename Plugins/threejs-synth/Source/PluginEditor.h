@@ -21,7 +21,13 @@ private:
     AudioPluginAudioProcessor& processorRef;
 
     std::unique_ptr<choc::ui::WebView> chocWebView;
+#if JUCE_WINDOWS
     std::unique_ptr<juce::HWNDComponent> juceHwndView;
+#elif JUCE_MAC
+    std::unique_ptr<juce::NSViewComponent> juceNsView;
+#elif JUCE_LINUX
+    std::unique_ptr<juce::XEmbedComponent> juceXEmbedView;
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

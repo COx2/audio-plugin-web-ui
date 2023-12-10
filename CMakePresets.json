@@ -20,11 +20,21 @@
         },
         {
             "name": "vs2022",
+            "displayName": "Windows-only configuration",
+            "description": "This build is only available on Windows",
             "inherits": [
                 "base"
             ],
             "generator": "Visual Studio 17 2022",
             "architecture": "x64"
+        },
+        {
+            "name": "ninja-multi",
+            "displayName": "Ninja Multi-Config",
+            "description": "Default build using Ninja Multi-Config generator",
+            "inherits": [
+                "base"
+            ]
         }
     ],
     "buildPresets": [
@@ -47,6 +57,20 @@
             "name": "vs2022-release",
             "description": "Build using Visual Studio 17 2022 for Release",
             "configurePreset": "vs2022",
+            "configuration": "Release",
+            "inherits": "base"
+        },
+        {
+            "name": "ninja-debug",
+            "description": "Build using Ninja for Debug",
+            "configurePreset": "ninja-multi",
+            "configuration": "Debug",
+            "inherits": "base"
+        },
+        {
+            "name": "ninja-release",
+            "description": "Build using Ninja for Release",
+            "configurePreset": "ninja-multi",
             "configuration": "Release",
             "inherits": "base"
         }
