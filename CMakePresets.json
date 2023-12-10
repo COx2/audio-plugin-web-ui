@@ -56,7 +56,9 @@
             "hidden": true,
             "targets":[
                 "WebGain_All",
-                "threejs-synth_All"
+                "WebGain_CLAP",
+                "threejs-synth_All",
+                "threejs-synth_CLAP"
             ]
         },
         {
