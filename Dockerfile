@@ -36,3 +36,5 @@ RUN DEBIAN_FRONTEND=noninteractive \
 COPY . /app
 
 WORKDIR /app
+
+RUN /app/Scripts/build_linux_ninja.sh
