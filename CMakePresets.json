@@ -32,7 +32,8 @@
             "name": "base",
             "hidden": true,
             "targets":[
-                "WebViewPluginExample_All"
+                "WebGain_All",
+                "threejs-synth_All"
             ]
         },
         {
