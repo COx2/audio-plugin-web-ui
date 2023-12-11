@@ -15,7 +15,8 @@ juce_add_plugin("${BaseTargetName}"
     COPY_PLUGIN_AFTER_BUILD FALSE
     PLUGIN_MANUFACTURER_CODE Cox2
     PLUGIN_CODE P5js
-    FORMATS AU VST3 Standalone
+    FORMATS AU AUv3 LV2 VST3 Standalone
+    LV2URI "urn:cox2:p5js-synth"
     PRODUCT_NAME "p5js-synth")
 
 clap_juce_extensions_plugin(TARGET "${BaseTargetName}"

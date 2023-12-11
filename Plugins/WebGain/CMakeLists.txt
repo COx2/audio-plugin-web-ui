@@ -13,9 +13,10 @@ juce_add_plugin("${BaseTargetName}"
     IS_MIDI_EFFECT FALSE
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     COPY_PLUGIN_AFTER_BUILD FALSE
-    PLUGIN_MANUFACTURER_CODE Juce
-    PLUGIN_CODE NPtm
-    FORMATS AU VST3 Standalone
+    PLUGIN_MANUFACTURER_CODE Cox2
+    PLUGIN_CODE Webg
+    FORMATS AU AUv3 LV2 VST3 Standalone
+    LV2URI "urn:cox2:webgain"
     PRODUCT_NAME "WebGain")
 
 clap_juce_extensions_plugin(TARGET "${BaseTargetName}"
