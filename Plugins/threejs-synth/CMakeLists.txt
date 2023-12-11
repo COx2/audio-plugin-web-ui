@@ -28,9 +28,10 @@ juce_add_binary_data("${BaseTargetName}_WebViewBundle"
     SOURCES
         WebView/view.html)
 
+# Need to build BinaryData with -fPIC flag on Linux
 set_target_properties("${BaseTargetName}_WebViewBundle"
     PROPERTIES
-        POSITION_INDEPENDENT_CODE ON)
+        POSITION_INDEPENDENT_CODE TRUE)
 
 target_sources(${BaseTargetName}
     PRIVATE
@@ -56,14 +57,14 @@ target_include_directories(${BaseTargetName}
 
 target_link_libraries(${BaseTargetName}
     PRIVATE
+        "${BaseTargetName}_WebViewBundle"
         juce::juce_gui_extra
         juce::juce_audio_utils
         juce::juce_audio_devices
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags
-        "${BaseTargetName}_WebViewBundle")
+        juce::juce_recommended_warning_flags)
 
 # On OSX, need to add the WebKit framework for WebView functionality
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
