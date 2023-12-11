@@ -35,5 +35,8 @@
 build/
 builds/
 
+# install folder
+installed/
+
 # macOS specific
 .DS_Store
