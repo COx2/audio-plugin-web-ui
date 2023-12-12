@@ -18,14 +18,36 @@ namespace
 
     return "application/octet-stream";
     }
+
+    enum
+    {
+        paramControlHeight = 40,
+        paramLabelWidth    = 80,
+        paramSliderWidth   = 300
+    };
 }
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p)
+    : AudioProcessorEditor (&p)
+    , processorRef (p)
+    , valueTreeState (p.getAPVTS())
 {
     juce::ignoreUnused (processorRef);
+    
+    gainLabel.setText ("Gain", juce::dontSendNotification);
+    addAndMakeVisible (gainLabel);
 
+    addAndMakeVisible (gainSlider);
+    gainAttachment.reset (new SliderAttachment (valueTreeState, "gain", gainSlider));
+    
+    invertButton.setButtonText ("Invert Phase");
+    addAndMakeVisible (invertButton);
+    invertAttachment.reset (new ButtonAttachment (valueTreeState, "invertPhase", invertButton));
+    
+    valueParameterGain.addListener(this);
+    valueParameterInvertPhase.addListener(this);
+    
     choc::ui::WebView::Options options;
     options.enableDebugMode = true;
 
@@ -56,7 +78,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 #elif JUCE_MAC
     juceNsView = std::make_unique<juce::NSViewComponent>();
     juceNsView->setView(chocWebView->getViewHandle());
-    addAndMakeVisible(juceNsView.get());
+//    addAndMakeVisible(juceNsView.get());
 #elif JUCE_LINUX
     juceXEmbedView = std::make_unique<juce::XEmbedComponent>(chocWebView->getViewHandle());
     addAndMakeVisible(juceXEmbedView.get());
@@ -66,8 +88,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setSize (800, 600);
     setResizable(true, true);
-
-    //chocWebView->navigate("http://www.google.com");
 
     auto web_view_on_click_button =
         [safe_this = juce::Component::SafePointer(this)](const choc::value::ValueView& args) -> choc::value::Value {
@@ -112,31 +132,39 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     const auto html = juce::String::createStringFromData(WebView::view_html, WebView::view_htmlSize);
     chocWebView->setHTML(html.toStdString());
+    
+    valueParameterGain.referTo(valueTreeState.getParameterAsValue("gain"));
+    valueParameterInvertPhase.referTo(valueTreeState.getParameterAsValue("invertPhase"));
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
+    valueParameterGain.removeListener(this);
+    valueParameterInvertPhase.removeListener(this);
 }
 
 //==============================================================================
 void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("WebGain", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
+    auto r = getLocalBounds();
+
+    auto gainRect = r.removeFromTop (paramControlHeight);
+    gainLabel .setBounds (gainRect.removeFromLeft (paramLabelWidth));
+    gainSlider.setBounds (gainRect);
+
+    invertButton.setBounds (r.removeFromTop (paramControlHeight));
+
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 #if JUCE_WINDOWS
     juceHwndView->setBounds(getLocalBounds());
 #elif JUCE_MAC
-    juceNsView->setBounds(getLocalBounds());
+//    juceNsView->setBounds(getLocalBounds());
 #elif JUCE_LINUX
     juceXEmbedView->setBounds(getLocalBounds());
 #endif

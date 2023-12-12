@@ -12,6 +12,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      #endif
                        )
 {
+    parameters = std::make_unique<juce::AudioProcessorValueTreeState>(*this, nullptr, juce::Identifier ("APVTSTutorial"), createParameterLayout());
+    
+    phaseParameter = parameters->getRawParameterValue ("invertPhase");
+    gainParameter  = parameters->getRawParameterValue ("gain");
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -89,6 +93,9 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     juce::ignoreUnused (sampleRate, samplesPerBlock);
+    
+    auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
+    previousGain = *gainParameter * phase;
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -139,17 +146,17 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
+    auto currentGain = *gainParameter * phase;
+
+    if (juce::approximatelyEqual (currentGain, previousGain))
     {
-        auto* channelData = buffer.getWritePointer (channel);
-        juce::ignoreUnused (channelData);
-        // ..do something to the data...
+        buffer.applyGain (currentGain);
+    }
+    else
+    {
+        buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, currentGain);
+        previousGain = currentGain;
     }
 }
 
@@ -171,6 +178,10 @@ void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     juce::ignoreUnused (destData);
+    
+    auto state = parameters->copyState();
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -178,6 +189,26 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
+    
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName (parameters->state.getType()))
+            parameters->replaceState (juce::ValueTree::fromXml (*xmlState));
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout()
+{
+    // It will move should not const.
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ "gain", 1 },
+          "Gain",
+          juce::NormalisableRange<float>(0.0f, 1.0f),
+          0.8f));
+    parameters.push_back(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{ "invertPhase", 1 },
+           "Invert Phase",
+            false));
+    return juce::AudioProcessorValueTreeState::ParameterLayout{ parameters.begin(), parameters.end() };
 }
 
 //==============================================================================
