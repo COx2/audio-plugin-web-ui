@@ -78,7 +78,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 #elif JUCE_MAC
     juceNsView = std::make_unique<juce::NSViewComponent>();
     juceNsView->setView(chocWebView->getViewHandle());
-//    addAndMakeVisible(juceNsView.get());
+    addAndMakeVisible(juceNsView.get());
 #elif JUCE_LINUX
     juceXEmbedView = std::make_unique<juce::XEmbedComponent>(chocWebView->getViewHandle());
     addAndMakeVisible(juceXEmbedView.get());
@@ -151,46 +151,46 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    auto r = getLocalBounds();
+    auto rect_ui = getLocalBounds();
 
-    auto gainRect = r.removeFromTop (paramControlHeight);
+    auto gainRect = rect_ui.removeFromTop (paramControlHeight);
     gainLabel .setBounds (gainRect.removeFromLeft (paramLabelWidth));
     gainSlider.setBounds (gainRect);
 
-    invertButton.setBounds (r.removeFromTop (paramControlHeight));
+    invertButton.setBounds (rect_ui.removeFromTop (paramControlHeight));
 
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 #if JUCE_WINDOWS
-    juceHwndView->setBounds(getLocalBounds());
+    juceHwndView->setBounds(rect_ui);
 #elif JUCE_MAC
-//    juceNsView->setBounds(getLocalBounds());
+    juceNsView->setBounds(rect_ui);
 #elif JUCE_LINUX
     juceXEmbedView->setBounds(getLocalBounds());
 #endif
+}
 
-    juce::MessageManager::callAsync(
-        [safe_this = juce::Component::SafePointer(this)]() {
-        if (safe_this.getComponent() == nullptr)
-        {
-        return;
-        }
 
-        {
-        safe_this->chocWebView->evaluateJavascript("Hello()");
-        }
-
-        {
+void AudioPluginAudioProcessorEditor::valueChanged (juce::Value& value)
+{
+    if(value.refersToSameSourceAs(valueParameterGain))
+    {
+        
+    }
+    else if(value.refersToSameSourceAs(valueParameterInvertPhase))
+    {
+        
+    }
+    
+    {
         juce::DynamicObject::Ptr json = new juce::DynamicObject();
         json->setProperty("message", "hello from cpp");
         const auto json_string = juce::JSON::toString(json.get());
-
+        
         juce::String javascript = juce::String("HelloWithJson(") + json_string + juce::String(")");
-
+        
         juce::Logger::outputDebugString(juce::JSON::toString(javascript));
-
-        safe_this->chocWebView->evaluateJavascript(javascript.toStdString());
-        }
-        }
-    );
+        
+        this->chocWebView->evaluateJavascript(javascript.toStdString());
+    }
 }
