@@ -1,3 +1,5 @@
 add_subdirectory(WebGain)
-add_subdirectory(threejs-synth)
-add_subdirectory(p5js-synth)
+
+# Experimental projects.
+# add_subdirectory(Experimental/threejs-synth)
+# add_subdirectory(Experimental/p5js-synth)

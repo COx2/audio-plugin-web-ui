@@ -85,6 +85,36 @@ endif ()
 
 message(STATUS "[${BaseTargetName}] Binary directory: ${CMAKE_CURRENT_BINARY_DIR}")
 
-# Copy my_executable to /install_folder after building
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${BaseTargetName}_artefacts/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>"
-        DESTINATION "./${BaseTargetName}/")
+# Copy build artefacts to /outputs after building
+if (TARGET "${BaseTargetName}_Standalone")
+    install(TARGETS "${BaseTargetName}_Standalone"
+            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/Standalone/")
+endif()
+
+if (TARGET "${BaseTargetName}_VST3")
+install(TARGETS "${BaseTargetName}_VST3"
+        DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/VST3/")
+endif()
+
+if (TARGET "${BaseTargetName}_AU")
+    install(TARGETS "${BaseTargetName}_AU"
+            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AU/")
+endif()
+
+if (TARGET "${BaseTargetName}_AUv3")
+    install(TARGETS "${BaseTargetName}_AUv3"
+            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AUv3/")
+endif()
+
+if (TARGET "${BaseTargetName}_LV2")
+    get_target_property(lv2_output_path "${BaseTargetName}_LV2" LIBRARY_OUTPUT_DIRECTORY)
+    message("${lv2_output_path}")
+
+    install(DIRECTORY "${lv2_output_path}"
+            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/LV2/")
+endif()
+
+if (TARGET "${BaseTargetName}_CLAP")
+    install(TARGETS "${BaseTargetName}_CLAP"
+            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/CLAP/")
+endif()
