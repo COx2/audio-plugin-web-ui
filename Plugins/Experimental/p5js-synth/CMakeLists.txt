@@ -15,7 +15,7 @@ juce_add_plugin("${BaseTargetName}"
     COPY_PLUGIN_AFTER_BUILD FALSE
     PLUGIN_MANUFACTURER_CODE Cox2
     PLUGIN_CODE P5js
-    FORMATS AU AUv3 LV2 VST3 Standalone
+    FORMATS Standalone VST3 AU AUv3 #LV2
     LV2URI "urn:cox2:p5js-synth"
     PRODUCT_NAME "p5js-synth")
 
@@ -106,13 +106,13 @@ if (TARGET "${BaseTargetName}_AUv3")
             DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AUv3/")
 endif()
 
-if (TARGET "${BaseTargetName}_LV2")
-    get_target_property(lv2_output_path "${BaseTargetName}_LV2" LIBRARY_OUTPUT_DIRECTORY)
-    message("${lv2_output_path}")
+# if (TARGET "${BaseTargetName}_LV2")
+#     get_target_property(lv2_output_path "${BaseTargetName}_LV2" LIBRARY_OUTPUT_DIRECTORY)
+#     message("${lv2_output_path}")
 
-    install(DIRECTORY "${lv2_output_path}"
-            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/LV2/")
-endif()
+#     install(DIRECTORY "${lv2_output_path}"
+#             DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/LV2/")
+# endif()
 
 if (TARGET "${BaseTargetName}_CLAP")
     install(TARGETS "${BaseTargetName}_CLAP"
