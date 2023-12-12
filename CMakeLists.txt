@@ -50,7 +50,7 @@ find_package(choc REQUIRED)
 find_package(clap-juce-extensions REQUIRED)
 
 # Specify the installation folder
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/installed)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/outputs)
 message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 #Add plugins projects

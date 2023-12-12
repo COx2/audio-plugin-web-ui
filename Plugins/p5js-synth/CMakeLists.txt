@@ -82,7 +82,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         target_link_libraries (${BaseTargetName} PUBLIC pthread PkgConfig::gtk3 PkgConfig::webkit2)
 endif ()
 
-message(STATUS "Binary directory: ${CMAKE_CURRENT_BINARY_DIR}")
+message(STATUS "[${BaseTargetName}] Binary directory: ${CMAKE_CURRENT_BINARY_DIR}")
 
 # Copy my_executable to /install_folder after building
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${BaseTargetName}_artefacts/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>"
