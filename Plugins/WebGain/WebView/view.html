@@ -1,88 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple GUI</title>
-  <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGain GUI</title>
+<style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
     }
 
     #output {
-      margin-top: 20px;
+        margin-top: 20px;
     }
-  </style>
+</style>
 </head>
 <body>
 
-  <h1>Simple GUI</h1>
+<h1>WebGain GUI</h1>
 
-  <button id="myButton_simple">Send simple messge!</button>
-  <button id="myButton_json">Send json object!</button>
+<!-- HTML element to display the message -->
+<p>Gain Value: <span id="gainValueLabel">50</span></p>
+<input type="range" min="0" max="100" value="50" id="gainSlider">
 
-  <!-- HTML element to display the message -->
-  <label id="outputLabel">Message will appear here</label>
+<p>Invert Phase Value: <span id="invertPhaseValueLabel"></span></p>
+<input type="checkbox" id="toggleInvertPhase">
 
-  <p>Slider Value: <span id="sliderValue">50</span></p>
-  <input type="range" min="0" max="100" value="50" id="mySlider">
+<p>MessageBox: <span id="invertPhaseValueLabel"></span></p>
+<div id="messageBox"></div>
 
-  <div id="output"></div>
+<script>
+    // Utility functions.
+    function mapRange(value, fromMin, fromMax, toMin, toMax) {
+        const clampedValue = Math.min(Math.max(value, fromMin), fromMax);
+        const normalizedValue = (clampedValue - fromMin) / (fromMax - fromMin);
+        const mappedValue = normalizedValue * (toMax - toMin) + toMin;
+        return mappedValue;
+    }
 
-  <script>
     // JavaScript code for handling button and slider events
-    document.getElementById('myButton_simple').addEventListener('click', function() {
-      document.getElementById('output').innerText = 'Button Clicked!';
-      onClickButton("Button Clicked!");
-    });
+    const gainSlider = document.getElementById('gainSlider');
+    const gainValueLabel = document.getElementById('gainValueLabel');
 
-    // JavaScript code for handling button and slider events
-    document.getElementById('myButton_json').addEventListener('click', function() {
+    const toggleInvertPhase = document.getElementById('toggleInvertPhase');
+    const invertPhaseValueLabel = document.getElementById('invertPhaseValueLabel');
+
+    // Event listener for gain slider
+    gainSlider.addEventListener('input', function() {
         const jsonData = {
-          message: 'Button Clicked!',
-          sliderValue: parseInt(document.getElementById('sliderValue').innerText),
-          someArray: [1, 2, 3, 4, 5]
+            sliderName: gainSlider.id,
+            sliderValue: gainSlider.value,
+            sliderRangeMin: gainSlider.min,
+            sliderRangeMax: gainSlider.max
         };
-  
-        // Convert JSON data to a string for display
-        const jsonString = JSON.stringify(jsonData, null, 2);
         
-        document.getElementById('output').innerText = jsonString;
-        onClickButton(jsonData);
+        gainValueLabel.innerText = gainSlider.value;
+
+        onSliderChanged(jsonData)
     });
 
-    const slider = document.getElementById('mySlider');
-    const output = document.getElementById('sliderValue');
+    // Event listener for toggle invert phase
+    toggleInvertPhase.addEventListener('change', function() {
+        const jsonData = {
+            toggleName: toggleInvertPhase.id,
+            toggleValue: toggleInvertPhase.checked,
+        };
+        
+        invertPhaseValueLabel.innerText = toggleInvertPhase.checked;
 
-    slider.addEventListener('input', function() {
-      output.innerText = slider.value;
-      onSliderChanged(slider.value)
+        onToggleChanged(jsonData)
     });
+
+    // Event callback from C++
+    function onParameterChanged(jsonData){
+        // This is the function that will be called from C++
+        console.log('JSON from C++: ', jsonData);
+
+        // Access the 'type' property in the JSON data
+        const parameterName = jsonData.parameterName;
+        
+        // Update the HTML label with the message
+        if(parameterName === "gain")
+        {
+            const mapped_value = mapRange(jsonData.parameterValue, 0.0, 1.0, gainSlider.min, gainSlider.max)
+            console.log('gainSlider: ', mapped_value);
+            
+            gainSlider.value = mapped_value;
+            gainValueLabel.innerText = gainSlider.value;
+        }
+        else if(parameterName === "invertPhase")
+        {
+            console.log('invertPhase: ', jsonData.parameterValue);
+
+            toggleInvertPhase.checked = jsonData.parameterValue;
+            invertPhaseValueLabel.innerText = toggleInvertPhase.checked;
+        }
+    }
 
     // JavaScript code defining the Hello function
     function Hello() {
-      // This is the function that will be called from C++
-      console.log('Hello from JavaScript!');
-      
-      // You can perform other actions or return data as needed
+        // This is the function that will be called from C++
+        console.log('Hello from JavaScript!');
+        
+        // You can perform other actions or return data as needed
     }
 
     // JavaScript code defining the Hello function
     function HelloWithJson(jsonData) {
-      // This is the function that will be called from C++
-      console.log('HelloWithJson: ', jsonData);
-      
-      // Access the 'message' property in the JSON data
-      var message = jsonData.message;
+        // This is the function that will be called from C++
+        console.log('HelloWithJson: ', jsonData);
+        
+        // Access the 'message' property in the JSON data
+        var message = jsonData.message;
 
-      // Update the HTML label with the message
-      document.getElementById('outputLabel').innerText = 'Message from C++: ' + message;
+        // Update the HTML label with the message
+        document.getElementById('messageBox').innerText = 'Message from C++: ' + message;
 
-      // You can perform other actions or return data as needed
+        // You can perform other actions or return data as needed
     }
-  </script>
+
+    // Invoke C++ callback for requesting initial update.
+    onInitialUpdate();
+    </script>
 
 </body>
 </html>

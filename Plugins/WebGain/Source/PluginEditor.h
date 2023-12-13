@@ -8,7 +8,8 @@
 //==============================================================================
 class AudioPluginAudioProcessorEditor final
     : public juce::AudioProcessorEditor
-    , juce::Value::Listener
+    , private juce::AudioProcessorValueTreeState::Listener
+    , private juce::ValueTree::Listener
 {
 public:
     explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
@@ -20,11 +21,8 @@ public:
 
 private:
     //==============================================================================
-    virtual void valueChanged (juce::Value& value) override;
-    
-    juce::Value valueParameterGain;
-    juce::Value valueParameterInvertPhase;
-    
+    virtual void parameterChanged(const juce::String& parameterID, float newValue) override;
+
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     AudioPluginAudioProcessor& processorRef;
