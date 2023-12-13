@@ -15,7 +15,7 @@ juce_add_plugin("${BaseTargetName}"
     COPY_PLUGIN_AFTER_BUILD FALSE
     PLUGIN_MANUFACTURER_CODE Cox2
     PLUGIN_CODE Webg
-    FORMATS Standalone VST3 AU AUv3 #LV2
+    FORMATS Standalone VST3 AU #AUv3 #LV2
     LV2URI "urn:cox2:webgain"
     PRODUCT_NAME "WebGain")
 
