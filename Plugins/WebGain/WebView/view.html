@@ -6,18 +6,18 @@
 <title>WebGain GUI</title>
 <style>
     body {
-        font-family: 'Orbitron', sans-serif;
+        font-family: 'Comic Sans MS', cursive; /* 90s style font */
         text-align: center;
         margin: 20px;
-        background-color: #121212;
-        color: #fff;
+        background-color: #660066; /* Purple background */
+        color: #ffcc00; /* Yellow text */
         overflow: hidden; /* Hide the scrollbar */
     }
 
     h1 {
-        color: #00ffaa; /* Neon green */
+        color: #ff9900; /* Orange */
         font-size: 3em;
-        text-shadow: 4px 4px 8px #006633; /* Dark green shadow */
+        text-shadow: 4px 4px 8px #990000; /* Dark red shadow */
         animation: pulse 1s infinite;
     }
 
@@ -37,7 +37,7 @@
     input[type="range"] {
         width: 80%;
         margin: 20px 0;
-        background-color: #006699; /* Dark blue */
+        background-color: #ffcc00; /* Yellow */
         border: none;
         height: 5px;
         -webkit-appearance: none;
@@ -46,8 +46,8 @@
     }
 
     @keyframes glow {
-        0% { box-shadow: 0 0 15px #00ffaa; }
-        100% { box-shadow: 0 0 30px #00ffaa; }
+        0% { box-shadow: 0 0 15px #ff9900; }
+        100% { box-shadow: 0 0 30px #ff9900; }
     }
 
     input[type="range"]::-webkit-slider-thumb {
@@ -55,10 +55,10 @@
         appearance: none;
         width: 30px;
         height: 30px;
-        background-color: #00ffaa; /* Neon green */
+        background-color: #ff9900; /* Orange */
         border-radius: 50%;
         cursor: pointer;
-        border: 3px solid #006633; /* Dark green border */
+        border: 3px solid #990000; /* Dark red border */
         animation: bounce 0.8s infinite alternate;
     }
 
@@ -71,8 +71,8 @@
         appearance: none;
         width: 30px;
         height: 30px;
-        background-color: #006699; /* Dark blue */
-        border: 3px solid #00ffaa; /* Neon green border */
+        background-color: #ffcc00; /* Yellow */
+        border: 3px solid #ff9900; /* Orange border */
         border-radius: 5px;
         display: inline-block;
         cursor: pointer;
@@ -85,14 +85,14 @@
     }
 
     input[type="checkbox"]:checked {
-        background-color: #00ffaa; /* Neon green when checked */
+        background-color: #ff9900; /* Orange when checked */
     }
 
     #messageBox {
-        background-color: #006699; /* Dark blue */
+        background-color: #ffcc00; /* Yellow */
         padding: 20px;
         margin-top: 30px;
-        border: 3px solid #00ffaa; /* Neon green border */
+        border: 3px solid #ff9900; /* Orange border */
         border-radius: 10px;
         animation: fadeIn 2s ease-in-out infinite alternate;
     }
@@ -116,10 +116,10 @@
     }
     
     /* Your existing styles here */
-    </style>
+</style>
 
-    <!-- Include p5.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+<!-- Include p5.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 <body>
 
