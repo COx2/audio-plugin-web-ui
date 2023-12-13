@@ -101,18 +101,99 @@
         0% { opacity: 0; }
         100% { opacity: 1; }
     }
-</style>
+
+    html, body, #canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+  	}
+    
+    #content {
+        z-index: 1; /* Set a higher z-index to place content above the canvas */
+        /* Additional styling for content */
+    }
+    
+    /* Your existing styles here */
+    </style>
+
+    <!-- Include p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 <body>
 
-<h1>WebGain</h1>
+<!-- p5.js canvas container -->
+<script>
+    let particles = [];
 
-<p>Gain [<span id="gainValueLabel">50</span>]</p>
-<input type="range" min="0" max="100" value="50" id="gainSlider">
+    function setup() {
+        let canvas = createCanvas(windowWidth, windowHeight);
+        canvas.position(0, 0);
+        canvas.style('z-index', '-1'); // Move the canvas behind other elements
 
-<p>Invert Phase [<span id="invertPhaseValueLabel"></span>]</p>
-<input type="checkbox" id="toggleInvertPhase">
+        frameRate(30);
 
+        // Create initial particles
+        for (let i = 0; i < 100; i++) {
+            particles.push(createParticle());
+        }
+    }
+
+    function draw() {
+        background(0); // Set background to black
+
+        // Update and display particles
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].display();
+        }
+    }
+
+    function createParticle() {
+        return {
+            x: random(width),
+            y: random(height),
+            size: random(2, 8),
+            color: color(random(100, 255), random(100, 255), random(100, 255)),
+            xSpeed: random(-2, 2),
+            ySpeed: random(-2, 2),
+            update: function () {
+                this.x += this.xSpeed;
+                this.y += this.ySpeed;
+
+                // Wrap particles around the canvas
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            },
+            display: function () {
+                fill(this.color);
+                noStroke();
+                ellipse(this.x, this.y, this.size, this.size);
+            }
+        };
+    }
+
+    // ブラウザのウインドウサイズを変更すると、この関数が呼ばれます。
+    function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+    }
+</script>
+
+<!-- Your HTML content here -->
+<div id="content">
+    <h1>WebGain</h1>
+
+    <p>Gain [<span id="gainValueLabel">50</span>]</p>
+    <input type="range" min="0" max="100" value="50" id="gainSlider">
+    
+    <p>Invert Phase [<span id="invertPhaseValueLabel"></span>]</p>
+    <input type="checkbox" id="toggleInvertPhase">
+</div>
+
+<!-- Your Script content here -->
 <script>
     // Utility functions.
     function mapRange(value, fromMin, fromMax, toMin, toMax) {
@@ -215,7 +296,8 @@
 
     // Invoke C++ callback for requesting initial update.
     onInitialUpdate();
-    </script>
+</script>
+
 
 </body>
 </html>
