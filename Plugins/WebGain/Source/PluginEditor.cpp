@@ -83,7 +83,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (800, 600);
+    setSize (800, 400);
     setResizable(true, true);
 
     auto web_view_callback_on_toggle_changed =
@@ -184,9 +184,9 @@ void AudioPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 #if JUCE_WINDOWS
-    juceHwndView->setBounds(rect_ui);
+    juceHwndView->setBounds(getLocalBounds());
 #elif JUCE_MAC
-    juceNsView->setBounds(rect_ui);
+    juceNsView->setBounds(getLocalBounds());
 #elif JUCE_LINUX
     juceXEmbedView->setBounds(getLocalBounds());
 #endif

@@ -6,29 +6,112 @@
 <title>WebGain GUI</title>
 <style>
     body {
-        font-family: Arial, sans-serif;
+        font-family: 'Orbitron', sans-serif;
         text-align: center;
         margin: 20px;
+        background-color: #121212;
+        color: #fff;
+        overflow: hidden; /* Hide the scrollbar */
     }
 
-    #output {
+    h1 {
+        color: #00ffaa; /* Neon green */
+        font-size: 3em;
+        text-shadow: 4px 4px 8px #006633; /* Dark green shadow */
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+
+    p {
         margin-top: 20px;
+        color: #66ccff; /* Light blue */
+        font-size: 1.2em;
+        animation: fadeIn 1.5s ease-in-out infinite alternate;
+    }
+
+    input[type="range"] {
+        width: 80%;
+        margin: 20px 0;
+        background-color: #006699; /* Dark blue */
+        border: none;
+        height: 5px;
+        -webkit-appearance: none;
+        outline: none;
+        animation: glow 1.5s infinite alternate;
+    }
+
+    @keyframes glow {
+        0% { box-shadow: 0 0 15px #00ffaa; }
+        100% { box-shadow: 0 0 30px #00ffaa; }
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 30px;
+        height: 30px;
+        background-color: #00ffaa; /* Neon green */
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid #006633; /* Dark green border */
+        animation: bounce 0.8s infinite alternate;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+
+    input[type="checkbox"] {
+        appearance: none;
+        width: 30px;
+        height: 30px;
+        background-color: #006699; /* Dark blue */
+        border: 3px solid #00ffaa; /* Neon green border */
+        border-radius: 5px;
+        display: inline-block;
+        cursor: pointer;
+        animation: rotate 2s linear infinite;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    input[type="checkbox"]:checked {
+        background-color: #00ffaa; /* Neon green when checked */
+    }
+
+    #messageBox {
+        background-color: #006699; /* Dark blue */
+        padding: 20px;
+        margin-top: 30px;
+        border: 3px solid #00ffaa; /* Neon green border */
+        border-radius: 10px;
+        animation: fadeIn 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
     }
 </style>
 </head>
 <body>
 
-<h1>WebGain GUI</h1>
+<h1>WebGain</h1>
 
-<!-- HTML element to display the message -->
-<p>Gain Value: <span id="gainValueLabel">50</span></p>
+<p>Gain [<span id="gainValueLabel">50</span>]</p>
 <input type="range" min="0" max="100" value="50" id="gainSlider">
 
-<p>Invert Phase Value: <span id="invertPhaseValueLabel"></span></p>
+<p>Invert Phase [<span id="invertPhaseValueLabel"></span>]</p>
 <input type="checkbox" id="toggleInvertPhase">
-
-<p>MessageBox: <span id="invertPhaseValueLabel"></span></p>
-<div id="messageBox"></div>
 
 <script>
     // Utility functions.
@@ -67,7 +150,12 @@
             toggleValue: toggleInvertPhase.checked,
         };
         
-        invertPhaseValueLabel.innerText = toggleInvertPhase.checked;
+        if(toggleInvertPhase.checked){
+            invertPhaseValueLabel.innerText = "ON";
+        }
+        else{
+            invertPhaseValueLabel.innerText = "OFF";
+        }
 
         onToggleChanged(jsonData)
     });
@@ -94,7 +182,12 @@
             console.log('invertPhase: ', jsonData.parameterValue);
 
             toggleInvertPhase.checked = jsonData.parameterValue;
-            invertPhaseValueLabel.innerText = toggleInvertPhase.checked;
+            if(toggleInvertPhase.checked){
+                invertPhaseValueLabel.innerText = "ON";
+            }
+            else{
+                invertPhaseValueLabel.innerText = "OFF";
+            }
         }
     }
 
