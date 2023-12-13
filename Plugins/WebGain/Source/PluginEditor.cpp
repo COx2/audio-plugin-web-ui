@@ -95,7 +95,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         }
 
         const auto choc_json_string = choc::json::toString(args);
-        juce::Logger::outputDebugString(choc_json_string);
+        //juce::Logger::outputDebugString(choc_json_string);
 
         const auto juce_json = juce::JSON::parse(choc_json_string);
         safe_this->valueTreeState.getParameter("invertPhase")->setValueNotifyingHost((bool)juce_json[0]["toggleValue"]);
@@ -112,16 +112,16 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         }
 
         const auto choc_json_string = choc::json::toString(args);
-        juce::Logger::outputDebugString(choc_json_string);
+        //juce::Logger::outputDebugString(choc_json_string);
 
         const auto juce_json = juce::JSON::parse(choc_json_string);
-        if (false)
-        {
-            juce::Logger::outputDebugString(juce_json[0]["sliderName"]);
-            juce::Logger::outputDebugString(juce_json[0]["sliderValue"]);
-            juce::Logger::outputDebugString(juce_json[0]["sliderRangeMin"]);
-            juce::Logger::outputDebugString(juce_json[0]["sliderRangeMax"]);
-        }
+        //if (false)
+        //{
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderName"]);
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderValue"]);
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderRangeMin"]);
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderRangeMax"]);
+        //}
 
         const auto normalised_value = juce::jmap<float>(
         (float)juce_json[0]["sliderValue"], 
@@ -202,7 +202,7 @@ void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& param
       const auto js_args_json = juce::JSON::toString(json.get());
       juce::String javascript = juce::String("onParameterChanged(") + js_args_json + juce::String(")");
 
-      juce::Logger::outputDebugString(juce::JSON::toString(javascript));
+      //juce::Logger::outputDebugString(juce::JSON::toString(javascript));
 
       this->chocWebView->evaluateJavascript(javascript.toStdString());
   }
@@ -214,7 +214,7 @@ void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& param
       const auto js_args_json = juce::JSON::toString(json.get());
       juce::String javascript = juce::String("onParameterChanged(") + js_args_json + juce::String(")");
 
-      juce::Logger::outputDebugString(juce::JSON::toString(javascript));
+      //juce::Logger::outputDebugString(juce::JSON::toString(javascript));
 
       this->chocWebView->evaluateJavascript(javascript.toStdString());
   }
