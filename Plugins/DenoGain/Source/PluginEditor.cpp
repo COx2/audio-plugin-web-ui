@@ -156,9 +156,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     chocWebView->bind("onSliderChanged", web_view_callback_on_sliider_changed);
     chocWebView->bind("onInitialUpdate", web_view_callback_on_initial_update);
 
-//  #if JUCE_DEBUG
-//      chocWebView->navigate("http://localhost:5173/");
-//  #endif
+//#if JUCE_DEBUG
+//    chocWebView->navigate("http://localhost:5173/");
+//#endif
 
     valueTreeState.addParameterListener("gain", this);
     valueTreeState.addParameterListener("invertPhase", this);
