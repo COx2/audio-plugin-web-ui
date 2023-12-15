@@ -87,7 +87,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (800, 400);
+    setSize (400, 800);
     setResizable(true, true);
 
     auto web_view_callback_on_toggle_changed =
