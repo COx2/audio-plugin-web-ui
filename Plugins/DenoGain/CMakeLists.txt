@@ -86,8 +86,9 @@ message(STATUS "[${BaseTargetName}] Binary directory: ${CMAKE_CURRENT_BINARY_DIR
 
 # Copy build artefacts to /outputs after building
 if (TARGET "${BaseTargetName}_Standalone")
-    install(TARGETS "${BaseTargetName}_Standalone"
-            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/Standalone/")
+    # install(TARGETS "${BaseTargetName}_Standalone"
+    #         DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/Standalone/")
+
     # Dependency process for Standalone
     add_custom_target("${BaseTargetName}_Standalone_Copy_WebView"
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_Standalone>/WebView
@@ -95,23 +96,23 @@ if (TARGET "${BaseTargetName}_Standalone")
 endif()
 
 if (TARGET "${BaseTargetName}_VST3")
-    install(TARGETS "${BaseTargetName}_VST3"
-            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/VST3/")
+    # install(TARGETS "${BaseTargetName}_VST3"
+    #         DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/VST3/")
 
     # Dependency process for VST3
     add_custom_target("${BaseTargetName}_VST3_Copy_WebView"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_VST3>/WebView
-    COMMENT "Running ${BaseTargetName}_VST3_Copy_WebView")
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_VST3>/WebView
+        COMMENT "Running ${BaseTargetName}_VST3_Copy_WebView")
 endif()
 
 if (TARGET "${BaseTargetName}_AU")
-    install(TARGETS "${BaseTargetName}_AU"
-            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AU/")
+    # install(TARGETS "${BaseTargetName}_AU"
+    #         DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AU/")
 endif()
 
 if (TARGET "${BaseTargetName}_AUv3")
-    install(TARGETS "${BaseTargetName}_AUv3"
-            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AUv3/")
+    # install(TARGETS "${BaseTargetName}_AUv3"
+    #         DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AUv3/")
 endif()
 
 # if (TARGET "${BaseTargetName}_LV2")
@@ -123,6 +124,11 @@ endif()
 # endif()
 
 if (TARGET "${BaseTargetName}_CLAP")
-    install(TARGETS "${BaseTargetName}_CLAP"
-            DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/CLAP/")
+    # install(TARGETS "${BaseTargetName}_CLAP"
+    #         DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/CLAP/")
+
+    # Dependency process for CLAP
+    add_custom_target("${BaseTargetName}_CLAP_Copy_WebView"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_CLAP>/WebView
+        COMMENT "Running ${BaseTargetName}_CLAP_Copy_WebView")
 endif()
