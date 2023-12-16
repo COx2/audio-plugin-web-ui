@@ -25,6 +25,8 @@ It utilizes a technology stack commonly used in web frontend development, includ
 
 ### Prerequisites
 
+In general, having a setup that allows building JUCE should be sufficient. If possible, it's reassuring to verify whether the JUCE DemoRunner can be successfully built.
+
 + Visual Studio: 2022 (Windows)
 + Xcode: 14.2 or later (macOS)
 + Clnag: 14 or later (Linux)
