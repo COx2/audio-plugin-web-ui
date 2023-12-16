@@ -21,6 +21,33 @@ It utilizes a technology stack commonly used in web frontend development, includ
 
 ![DenoGain](img/denogain.gif)
 
+## How to build
+
+### Prerequisites
+
++ Visual Studio: 2022 (Windows)
++ Xcode: 14.2 or later (macOS)
++ Clnag: 14 or later (Linux)
++ Ninja-build: 1.11 or later (Linux)
++ CMake: 3.25 or later
++ Git: 2.3 or later
+
+### Run build scripts
+
+Windows:
+```bat
+.\Scritps\build_windows_msvc2022.bat
+```
+
+macOS:
+```sh
+./Scritps/build_macos_xcode.sh
+```
+
+Linux:
+```sh
+./Scritps/build_linux_ninja.sh.sh
+```
 
 ## Attention Regarding Licenses
 
