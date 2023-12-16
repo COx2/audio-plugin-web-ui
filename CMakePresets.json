@@ -55,7 +55,13 @@
             "name": "base",
             "hidden": true,
             "targets":[
-                "install"
+                "WebGain_All",
+                "WebGain_CLAP",
+                "DenoGain_All",
+                "DenoGain_CLAP",
+                "DenoGain_Standalone_Copy_WebView",
+                "DenoGain_VST3_Copy_WebView",
+                "DenoGain_CLAP_Copy_WebView"
             ]
         },
         {
