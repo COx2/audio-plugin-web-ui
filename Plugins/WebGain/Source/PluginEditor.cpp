@@ -5,18 +5,23 @@
 //==============================================================================
 namespace
 {
-    std::string getMimeType(std::string const& ext) {
-    static std::unordered_map<std::string, std::string> mimeTypes{
-        { ".html",   "text/html" },
-        { ".js",     "application/javascript" },
-        { ".css",    "text/css" },
-        { ".vrm",    "model/gltf-binary"},
-    };
+    std::string getMimeType(std::string const& ext)
+    {
+        static std::unordered_map<std::string, std::string> mimeTypes{
+          { ".html",   "text/html" },
+          { ".js",     "application/javascript" },
+          { ".css",    "text/css" },
+          { ".json",   "application/json"},
+          { ".svg", "image/svg+xml"},
+          { ".svgz", "image/svg+xml"},
+        };
 
-    if (mimeTypes.count(ext) > 0)
-        return mimeTypes.at(ext);
+        if (mimeTypes.count(ext) > 0)
+        {
+            return mimeTypes.at(ext);
+        }
 
-    return "application/octet-stream";
+        return "application/octet-stream";
     }
 
     enum
