@@ -108,6 +108,11 @@ endif()
 if (TARGET "${BaseTargetName}_AU")
     # install(TARGETS "${BaseTargetName}_AU"
     #         DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AU/")
+
+    # Dependency process for AU
+    add_custom_target("${BaseTargetName}_AU_Copy_WebView"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_AU>/WebView
+        COMMENT "Running ${BaseTargetName}_AU_Copy_WebView")
 endif()
 
 if (TARGET "${BaseTargetName}_AUv3")
