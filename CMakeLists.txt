@@ -27,6 +27,10 @@ else ()
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version" FORCE)
 endif ()
 
+# From clap: If running into issues when Xcode tries to codesign the CLAP plugin, you may want to add these lines:
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO")
+
 option(UniversalBinary "Build universal binary for mac" ON)
 
 if (UniversalBinary)
