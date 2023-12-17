@@ -3,7 +3,7 @@ This is an example of implementing a graphical user interface for audio plugin w
 
 ## Motivation
 
-This project has the following motivation: to introduce a method for creating the GUI of audio plugins using web technologies by combining JUCE and CHOC. This approach enables flexible and effective GUI prototyping, incorporating multiple technological elements.
+To introduce a method for creating the GUI of audio plugins using web technologies by combining JUCE and CHOC. This approach enables flexible and effective GUI prototyping, incorporating multiple technological elements.
 
 ## Examples
 
@@ -48,7 +48,7 @@ macOS:
 
 Linux:
 ```sh
-./Scritps/build_linux_ninja.sh.sh
+./Scritps/build_linux_ninja.sh
 ```
 
 ## Attention Regarding Licenses
