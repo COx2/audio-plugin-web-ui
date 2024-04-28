@@ -38,17 +38,17 @@ In general, having a setup that allows building JUCE should be sufficient. If po
 
 Windows:
 ```bat
-.\Scritps\build_windows_msvc2022.bat
+.\Scripts\build_windows_msvc2022.bat
 ```
 
 macOS:
 ```sh
-./Scritps/build_macos_xcode.sh
+./Scripts/build_macos_xcode.sh
 ```
 
 Linux:
 ```sh
-./Scritps/build_linux_ninja.sh
+./Scripts/build_linux_ninja.sh
 ```
 
 ## Attention Regarding Licenses
