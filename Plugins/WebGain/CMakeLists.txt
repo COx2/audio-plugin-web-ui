@@ -85,36 +85,41 @@ endif ()
 
 message(STATUS "[${BaseTargetName}] Binary directory: ${CMAKE_CURRENT_BINARY_DIR}")
 
-# # Copy build artefacts to /outputs after building
-# if (TARGET "${BaseTargetName}_Standalone")
-#     install(TARGETS "${BaseTargetName}_Standalone"
-#             DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/Standalone/")
-# endif()
+# Add cmake install task for this project.
+if(TARGET ${BaseTargetName}_VST3)
+    get_target_property(VST3_PRODUCT_FILE ${BaseTargetName}_VST3 JUCE_PLUGIN_ARTEFACT_FILE)
+    message("VST3_PRODUCT_FILE: ${VST3_PRODUCT_FILE}")
 
-# if (TARGET "${BaseTargetName}_VST3")
-# install(TARGETS "${BaseTargetName}_VST3"
-#         DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/VST3/")
-# endif()
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
-# if (TARGET "${BaseTargetName}_AU")
-#     install(TARGETS "${BaseTargetName}_AU"
-#             DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AU/")
-# endif()
+        install(FILES "${VST3_PRODUCT_FILE}"
+                DESTINATION "/Library/Audio/Plug-Ins/VST3"
+                COMPONENT ${BaseTargetName}_VST3)
 
-# if (TARGET "${BaseTargetName}_AUv3")
-#     install(TARGETS "${BaseTargetName}_AUv3"
-#             DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/AUv3/")
-# endif()
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
-# if (TARGET "${BaseTargetName}_LV2")
-#     get_target_property(lv2_output_path "${BaseTargetName}_LV2" LIBRARY_OUTPUT_DIRECTORY)
-#     message("${lv2_output_path}")
+        install(FILES "${VST3_PRODUCT_FILE}"
+                DESTINATION "C:/Program Files/Common Files/VST3"
+                COMPONENT ${BaseTargetName}_VST3)
 
-#     install(DIRECTORY "${lv2_output_path}"
-#             DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/LV2/")
-# endif()
+    endif()
+endif()
 
-# if (TARGET "${BaseTargetName}_CLAP")
-#     install(TARGETS "${BaseTargetName}_CLAP"
-#             DESTINATION "./$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/${BaseTargetName}/CLAP/")
-# endif()
+if(TARGET ${BaseTargetName}_CLAP)
+    get_target_property(CLAP_PRODUCT_FILE ${BaseTargetName}_CLAP JUCE_PLUGIN_ARTEFACT_FILE)
+    message("CLAP_PRODUCT_FILE: ${CLAP_PRODUCT_FILE}")
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+        install(FILES "${CLAP_PRODUCT_FILE}"
+                DESTINATION "/Library/Audio/Plug-Ins/CLAP"
+                COMPONENT ${BaseTargetName}_CLAP)
+
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+        install(FILES "${CLAP_PRODUCT_FILE}"
+                DESTINATION "C:/Program Files/Common Files/CLAP"
+                COMPONENT ${BaseTargetName}_CLAP)
+
+    endif()
+endif()
