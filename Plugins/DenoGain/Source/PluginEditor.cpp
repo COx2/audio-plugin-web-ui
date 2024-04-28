@@ -54,21 +54,21 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     auto asset_directory = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile).getSiblingFile("WebView");
     
-    options.fetchResource = [this, assetDirectory = asset_directory](const choc::ui::WebView::Options::Path& path)
+    options.fetchResource = [this, assetDirectory = asset_directory](const std::string& path)
         -> std::optional<choc::ui::WebView::Options::Resource> {
-            auto relative_path = "." + (path == "/" ? "/index.html" : path);
-            auto file_to_read = assetDirectory.getChildFile(relative_path);
+        auto relative_path = "." + (path == "/" ? "/index.html" : path);
+        auto file_to_read = assetDirectory.getChildFile(relative_path);
 
-            juce::Logger::outputDebugString(file_to_read.getFullPathName());
+        juce::Logger::outputDebugString(file_to_read.getFullPathName());
 
-            juce::MemoryBlock memory_block;
-            if (!file_to_read.existsAsFile() || !file_to_read.loadFileAsData(memory_block))
-                return {};
+        juce::MemoryBlock memory_block;
+        if (!file_to_read.existsAsFile() || !file_to_read.loadFileAsData(memory_block))
+            return {};
 
-            return choc::ui::WebView::Options::Resource {
-                std::vector<uint8_t>(memory_block.begin(), memory_block.end()),
-                getMimeType(file_to_read.getFileExtension().toStdString())
-        };
+        return choc::ui::WebView::Options::Resource(
+            file_to_read.loadFileAsString().toStdString(),
+            getMimeType(file_to_read.getFileExtension().toStdString())
+        );
     };
 
     chocWebView = std::make_unique<choc::ui::WebView>(options);
