@@ -37,6 +37,17 @@ In general, having a setup that allows building JUCE should be sufficient. If po
 
 ### Run build scripts
 
+#### Cross-Platform shell-script by Deno
+
+Deno:
+```sh
+deno run --allow-all ./Scripts/deno/build-with-cmake.ts
+```
+
+#### Platform native shell-script
+
+There are scripts for each platform, so please run the following command.
+
 Windows:
 ```bat
 .\Scripts\build_windows_msvc2022.bat
@@ -51,6 +62,46 @@ Linux:
 ```sh
 ./Scripts/build_linux_ninja.sh
 ```
+
+## How to install
+
+#### Cross-Platform shell-script by Deno
+
+Deno(Windows):
+In windows, run shell with administrator rights.
+```sh
+# Install VST3 plugins.
+deno run --allow-all ./Scripts/deno/install-vst3-with-cmake.ts
+
+# Install CLAP plugins.
+deno run --allow-all ./Scripts/deno/install-clap-with-cmake.ts
+```
+
+Deno(macOS, Linux):
+```sh
+# Install VST3 plugins.
+sudo deno run --allow-all ./Scripts/deno/install-vst3-with-cmake.ts
+
+# Install CLAP plugins.
+sudo deno run --allow-all ./Scripts/deno/install-clap-with-cmake.ts
+```
+
+#### Platform native shell-script
+
+There are scripts for each platform, so please run the following command.
+
+Windows:
+```bat
+@REM Install VST3 plugins.
+.\Scripts\install_windows_msvc2022_vst3.bat
+
+@REM Install CLAP plugins.
+.\Scripts\install_windows_msvc2022_clap.bat
+```
+
+macOS: under construction.
+
+Linux: under construction.
 
 ## Attention Regarding Licenses
 
