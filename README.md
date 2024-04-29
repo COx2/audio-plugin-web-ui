@@ -39,9 +39,13 @@ In general, having a setup that allows building JUCE should be sufficient. If po
 
 #### Cross-Platform shell-script by Deno
 
+This script requires the Deno runtime environment to execute.
+Please refer to the official website for instructions on how to install Deno.
+https://deno.com/
+
 Deno:
 ```sh
-deno run --allow-all ./Scripts/deno/build-with-cmake.ts
+deno run --allow-all ./Scripts/deno/build-all.ts
 ```
 
 #### Platform native shell-script
@@ -66,6 +70,10 @@ Linux:
 ## How to install
 
 #### Cross-Platform shell-script by Deno
+
+This script requires the Deno runtime environment to execute.
+Please refer to the official website for instructions on how to install Deno.
+https://deno.com/
 
 Deno(Windows):
 In windows, run shell with administrator rights.
