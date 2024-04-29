@@ -110,3 +110,27 @@ if(TARGET ${BaseTargetName}_VST3)
 
     endif()
 endif()
+
+if(TARGET ${BaseTargetName}_CLAP)
+    get_target_property(CLAP_PRODUCT_FILE ${BaseTargetName}_CLAP JUCE_PLUGIN_ARTEFACT_FILE)
+    message("CLAP_PRODUCT_FILE: ${CLAP_PRODUCT_FILE}")
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+        install(FILES "${CLAP_PRODUCT_FILE}"
+                DESTINATION "/Library/Audio/Plug-Ins/CLAP"
+                COMPONENT ${BaseTargetName}_CLAP)
+
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+        install(FILES "${CLAP_PRODUCT_FILE}"
+                DESTINATION "C:/Program Files/Common Files/CLAP"
+                COMPONENT ${BaseTargetName}_CLAP)
+
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+        install(FILES "${VST3_PRODUCT_FILE}"
+                DESTINATION "/usr/lib/clap"
+                COMPONENT ${BaseTargetName}_CLAP)
+    endif()
+endif()
