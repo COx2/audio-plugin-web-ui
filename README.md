@@ -33,6 +33,7 @@ In general, having a setup that allows building JUCE should be sufficient. If po
 + Ninja-build: 1.11 or later (Linux)
 + CMake: 3.25 or later
 + Git: 2.3 or later
++ Deno: 1.42 or later
 
 ### Run build scripts
 
