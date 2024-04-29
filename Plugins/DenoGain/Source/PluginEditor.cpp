@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "WebViewBundleData.h"
 
 //==============================================================================
 namespace
@@ -29,14 +30,49 @@ namespace
         paramLabelWidth    = 80,
         paramSliderWidth   = 300
     };
+
+    static std::string getExtension (juce::String filename)
+    {
+        return filename.fromLastOccurrenceOf (".", false, false).toStdString();
+    }
+
+    std::optional<choc::ui::WebView::Options::Resource> getResourceFromZipFile (juce::ZipFile& zipFile, const std::string& path)
+    {
+        auto file_path = (path == "/" ? "/index.html" : path);
+
+        file_path = file_path.erase(0, 1);
+
+        const auto zip_entry_idx = zipFile.getIndexOfFileName (file_path);
+
+        if (zip_entry_idx < 0)
+        {
+            return std::nullopt;
+        }
+
+        const auto* zip_entry = zipFile.getEntry (zip_entry_idx);
+        if (zip_entry == nullptr)
+        {
+            return std::nullopt;
+        }
+
+        auto zipped_reader = std::unique_ptr<juce::InputStream>(zipFile.createStreamForEntry (*zip_entry));
+        std::string mime_type = getMimeType ("." + getExtension (zip_entry->filename));
+        uint64_t uncompressed_size = zip_entry->uncompressedSize;
+
+        juce::MemoryBlock memory_block (uncompressed_size);
+
+        zipped_reader->read (memory_block.begin(), uncompressed_size);
+
+        return choc::ui::WebView::Options::Resource (memory_block.toString().toStdString(), mime_type);
+    }
 }
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p)
-    , processorRef (p)
-    , valueTreeState (p.getAPVTS())
+    : AudioProcessorEditor (&p), processorRef (p), valueTreeState (p.getAPVTS()), misWebViewBundle (WebView::WebViewBundle_zip, WebView::WebViewBundle_zipSize, false)
 {
+    zipWebViewBundle = std::make_unique<juce::ZipFile> (misWebViewBundle);
+
     juce::ignoreUnused (processorRef);
     
     gainLabel.setText ("Gain", juce::dontSendNotification);
@@ -52,6 +88,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     choc::ui::WebView::Options options;
     options.enableDebugMode = false;
 
+#if 0
     auto asset_directory = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile).getSiblingFile("WebView");
     
     options.fetchResource = [this, assetDirectory = asset_directory](const std::string& path)
@@ -69,6 +106,18 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
             file_to_read.loadFileAsString().toStdString(),
             getMimeType(file_to_read.getFileExtension().toStdString())
         );
+    };
+#endif
+
+    options.fetchResource = [this] (const std::string& path)
+        -> std::optional<choc::ui::WebView::Options::Resource>
+    {
+        if (this->zipWebViewBundle.get() == nullptr)
+        {
+            return std::nullopt;
+        }
+
+        return getResourceFromZipFile (*this->zipWebViewBundle, path);
     };
 
     chocWebView = std::make_unique<choc::ui::WebView>(options);

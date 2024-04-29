@@ -58,11 +58,7 @@
                 "WebGain_All",
                 "WebGain_CLAP",
                 "DenoGain_All",
-                "DenoGain_CLAP",
-                "DenoGain_Standalone_Copy_WebView",
-                "DenoGain_VST3_Copy_WebView",
-                "DenoGain_AU_Copy_WebView",
-                "DenoGain_CLAP_Copy_WebView"
+                "DenoGain_CLAP"
             ]
         },
         {

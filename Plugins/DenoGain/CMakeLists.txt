@@ -23,17 +23,17 @@ clap_juce_extensions_plugin(TARGET "${BaseTargetName}"
     CLAP_ID "com.cox2.denogain"
     CLAP_FEATURES audio-effect filter mono stereo)
 
-# juce_add_binary_data("${BaseTargetName}_WebViewBundle"
-#     HEADER_NAME "WebViewBundleData.h"
-#     NAMESPACE "WebView"
-#     SOURCES
-#         WebView/view.html
-#     )
+juce_add_binary_data("${BaseTargetName}_WebViewBundle"
+    HEADER_NAME "WebViewBundleData.h"
+    NAMESPACE "WebView"
+    SOURCES
+        WebView/WebViewBundle.zip
+    )
 
-# # Need to build BinaryData with -fPIC flag on Linux
-# set_target_properties("${BaseTargetName}_WebViewBundle"
-#     PROPERTIES
-#         POSITION_INDEPENDENT_CODE TRUE)
+# Need to build BinaryData with -fPIC flag on Linux
+set_target_properties("${BaseTargetName}_WebViewBundle"
+    PROPERTIES
+        POSITION_INDEPENDENT_CODE TRUE)
 
 target_sources(${BaseTargetName}
     PRIVATE
@@ -59,6 +59,7 @@ target_include_directories(${BaseTargetName}
 
 target_link_libraries(${BaseTargetName}
     PRIVATE
+        "${BaseTargetName}_WebViewBundle"
         juce::juce_gui_extra
         juce::juce_audio_utils
         juce::juce_audio_devices
@@ -83,35 +84,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif ()
 
 message(STATUS "[${BaseTargetName}] Binary directory: ${CMAKE_CURRENT_BINARY_DIR}")
-
-# Copy build artefacts to /outputs after building
-if (TARGET "${BaseTargetName}_Standalone")
-    # Dependency process for Standalone
-    add_custom_target("${BaseTargetName}_Standalone_Copy_WebView"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_Standalone>/WebView
-        COMMENT "Running COPY_WebView_Standalone")
-endif()
-
-if (TARGET "${BaseTargetName}_VST3")
-    # Dependency process for VST3
-    add_custom_target("${BaseTargetName}_VST3_Copy_WebView"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_VST3>/WebView
-        COMMENT "Running ${BaseTargetName}_VST3_Copy_WebView")
-endif()
-
-if (TARGET "${BaseTargetName}_AU")
-    # Dependency process for AU
-    add_custom_target("${BaseTargetName}_AU_Copy_WebView"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_AU>/WebView
-        COMMENT "Running ${BaseTargetName}_AU_Copy_WebView")
-endif()
-
-if (TARGET "${BaseTargetName}_CLAP")
-    # Dependency process for CLAP
-    add_custom_target("${BaseTargetName}_CLAP_Copy_WebView"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_SOURCE_DIR}/WebView/vite-project/dist $<TARGET_FILE_DIR:${BaseTargetName}_CLAP>/WebView
-        COMMENT "Running ${BaseTargetName}_CLAP_Copy_WebView")
-endif()
 
 # Add cmake install task for this project.
 if(TARGET ${BaseTargetName}_VST3)
@@ -138,22 +110,3 @@ if(TARGET ${BaseTargetName}_VST3)
 
     endif()
 endif()
-
-# if(TARGET ${BaseTargetName}_CLAP)
-#     get_target_property(CLAP_PRODUCT_FILE ${BaseTargetName}_CLAP JUCE_PLUGIN_ARTEFACT_FILE)
-#     message("CLAP_PRODUCT_FILE: ${CLAP_PRODUCT_FILE}")
-
-#     if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-
-#         install(FILES "${CLAP_PRODUCT_FILE}"
-#                 DESTINATION "/Library/Audio/Plug-Ins/CLAP"
-#                 COMPONENT ${BaseTargetName}_CLAP)
-
-#     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-
-#         install(FILES "${CLAP_PRODUCT_FILE}"
-#                 DESTINATION "C:/Program Files/Common Files/CLAP"
-#                 COMPONENT ${BaseTargetName}_CLAP)
-
-#     endif()
-# endif()

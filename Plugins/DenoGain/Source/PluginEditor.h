@@ -4,6 +4,7 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <juce_data_structures/juce_data_structures.h>
 #include <gui/choc_WebView.h>
+#include <containers/choc_ZipFile.h>
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final
@@ -47,6 +48,9 @@ private:
 #elif JUCE_LINUX
     std::unique_ptr<juce::XEmbedComponent> juceXEmbedView;
 #endif
+    
+    juce::MemoryInputStream misWebViewBundle;
+    std::unique_ptr<juce::ZipFile> zipWebViewBundle;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };
