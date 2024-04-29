@@ -1,5 +1,6 @@
 #!/usr/bin/env -S deno run --allow-write --allow-read --allow-net
 
+/* This code is copyrighted at https://github.com/gildas-lormeau/zip.js */
 /* global Deno, URL, TextEncoderStream */
 
 import { parse as parseArgs } from "https://deno.land/std@0.147.0/flags/mod.ts";
