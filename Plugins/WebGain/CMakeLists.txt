@@ -102,6 +102,12 @@ if(TARGET ${BaseTargetName}_VST3)
                 DESTINATION "C:/Program Files/Common Files/VST3"
                 COMPONENT ${BaseTargetName}_VST3)
 
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+        install(FILES "${VST3_PRODUCT_FILE}"
+                DESTINATION "/usr/lib/vst3"
+                COMPONENT ${BaseTargetName}_VST3)
+
     endif()
 endif()
 
@@ -121,5 +127,10 @@ if(TARGET ${BaseTargetName}_CLAP)
                 DESTINATION "C:/Program Files/Common Files/CLAP"
                 COMPONENT ${BaseTargetName}_CLAP)
 
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+        install(FILES "${VST3_PRODUCT_FILE}"
+                DESTINATION "/usr/lib/clap"
+                COMPONENT ${BaseTargetName}_CLAP)
     endif()
 endif()

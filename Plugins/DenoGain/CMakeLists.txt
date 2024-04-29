@@ -130,6 +130,12 @@ if(TARGET ${BaseTargetName}_VST3)
                 DESTINATION "C:/Program Files/Common Files/VST3"
                 COMPONENT ${BaseTargetName}_VST3)
 
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+        install(FILES "${VST3_PRODUCT_FILE}"
+                DESTINATION "/usr/lib/vst3"
+                COMPONENT ${BaseTargetName}_VST3)
+
     endif()
 endif()
 
