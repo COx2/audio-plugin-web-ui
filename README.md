@@ -29,7 +29,8 @@ In general, having a setup that allows building JUCE should be sufficient. If po
 
 + Visual Studio: 2022 (Windows)
 + Xcode: 14.2 or later (macOS)
-+ Clnag: 14 or later (Linux)
++ GCC: 11 or later (Linux)
++ Clang: 14 or later (Linux)
 + Ninja-build: 1.11 or later (Linux)
 + CMake: 3.25 or later
 + Git: 2.3 or later
@@ -68,6 +69,8 @@ Linux:
 ```
 
 ## How to install
+
+### Run install scripts
 
 #### Cross-Platform shell-script by Deno
 
