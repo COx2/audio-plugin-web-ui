@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGain GUI</title>
+<style>
+    body {
+        font-family: 'Comic Sans MS', cursive; /* 90s style font */
+        text-align: center;
+        margin: 20px;
+        background-color: #660066; /* Purple background */
+        color: #ffcc00; /* Yellow text */
+        overflow: hidden; /* Hide the scrollbar */
+    }
+
+    h1 {
+        color: #ff9900; /* Orange */
+        font-size: 3em;
+        text-shadow: 4px 4px 8px #990000; /* Dark red shadow */
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+
+    p {
+        margin-top: 20px;
+        color: #66ccff; /* Light blue */
+        font-size: 1.2em;
+        animation: fadeIn 1.5s ease-in-out infinite alternate;
+    }
+
+    input[type="range"] {
+        width: 80%;
+        margin: 20px 0;
+        background-color: #ffcc00; /* Yellow */
+        border: none;
+        height: 5px;
+        -webkit-appearance: none;
+        outline: none;
+        animation: glow 1.5s infinite alternate;
+    }
+
+    @keyframes glow {
+        0% { box-shadow: 0 0 15px #ff9900; }
+        100% { box-shadow: 0 0 30px #ff9900; }
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 30px;
+        height: 30px;
+        background-color: #ff9900; /* Orange */
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid #990000; /* Dark red border */
+        animation: bounce 0.8s infinite alternate;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+
+    input[type="checkbox"] {
+        appearance: none;
+        width: 30px;
+        height: 30px;
+        background-color: #ffcc00; /* Yellow */
+        border: 3px solid #ff9900; /* Orange border */
+        border-radius: 5px;
+        display: inline-block;
+        cursor: pointer;
+        animation: rotate 2s linear infinite;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    input[type="checkbox"]:checked {
+        background-color: #ff9900; /* Orange when checked */
+    }
+
+    #messageBox {
+        background-color: #ffcc00; /* Yellow */
+        padding: 20px;
+        margin-top: 30px;
+        border: 3px solid #ff9900; /* Orange border */
+        border-radius: 10px;
+        animation: fadeIn 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    html, body, #canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+  	}
+    
+    #content {
+        z-index: 1; /* Set a higher z-index to place content above the canvas */
+        /* Additional styling for content */
+    }
+    
+    /* Your existing styles here */
+</style>
+
+<!-- Include p5.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+
+<!-- p5.js canvas container -->
+<script>
+    let particles = [];
+
+    function setup() {
+        let canvas = createCanvas(windowWidth, windowHeight);
+        canvas.position(0, 0);
+        canvas.style('z-index', '-1'); // Move the canvas behind other elements
+
+        frameRate(30);
+
+        // Create initial particles
+        for (let i = 0; i < 100; i++) {
+            particles.push(createParticle());
+        }
+    }
+
+    function draw() {
+        background(0); // Set background to black
+
+        // Update and display particles
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].display();
+        }
+    }
+
+    function createParticle() {
+        return {
+            x: random(width),
+            y: random(height),
+            size: random(2, 8),
+            color: color(random(100, 255), random(100, 255), random(100, 255)),
+            xSpeed: random(-2, 2),
+            ySpeed: random(-2, 2),
+            update: function () {
+                this.x += this.xSpeed;
+                this.y += this.ySpeed;
+
+                // Wrap particles around the canvas
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            },
+            display: function () {
+                fill(this.color);
+                noStroke();
+                ellipse(this.x, this.y, this.size, this.size);
+            }
+        };
+    }
+
+    // ブラウザのウインドウサイズを変更すると、この関数が呼ばれます。
+    function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+    }
+</script>
+
+<!-- Your HTML content here -->
+<div id="content">
+    <h1>WebGain</h1>
+
+    <p>Gain [<span id="gainValueLabel">50</span>]</p>
+    <input type="range" min="0" max="100" value="50" id="gainSlider">
+    
+    <p>Invert Phase [<span id="invertPhaseValueLabel"></span>]</p>
+    <input type="checkbox" id="toggleInvertPhase">
+</div>
+
+<!-- Your Script content here -->
+<script>
+    // Utility functions.
+    function mapRange(value, fromMin, fromMax, toMin, toMax) {
+        const clampedValue = Math.min(Math.max(value, fromMin), fromMax);
+        const normalizedValue = (clampedValue - fromMin) / (fromMax - fromMin);
+        const mappedValue = normalizedValue * (toMax - toMin) + toMin;
+        return mappedValue;
+    }
+
+    // JavaScript code for handling button and slider events
+    const gainSlider = document.getElementById('gainSlider');
+    const gainValueLabel = document.getElementById('gainValueLabel');
+
+    const toggleInvertPhase = document.getElementById('toggleInvertPhase');
+    const invertPhaseValueLabel = document.getElementById('invertPhaseValueLabel');
+
+    // Event listener for gain slider
+    gainSlider.addEventListener('input', function() {
+        const jsonData = {
+            sliderName: gainSlider.id,
+            sliderValue: gainSlider.value,
+            sliderRangeMin: gainSlider.min,
+            sliderRangeMax: gainSlider.max
+        };
+        
+        gainValueLabel.innerText = gainSlider.value;
+
+        onSliderChanged(jsonData)
+    });
+
+    // Event listener for toggle invert phase
+    toggleInvertPhase.addEventListener('change', function() {
+        const jsonData = {
+            toggleName: toggleInvertPhase.id,
+            toggleValue: toggleInvertPhase.checked,
+        };
+        
+        if(toggleInvertPhase.checked){
+            invertPhaseValueLabel.innerText = "ON";
+        }
+        else{
+            invertPhaseValueLabel.innerText = "OFF";
+        }
+
+        onToggleChanged(jsonData)
+    });
+
+    // Event callback from C++
+    function onParameterChanged(jsonData){
+        // This is the function that will be called from C++
+        console.log('JSON from C++: ', jsonData);
+
+        // Access the 'type' property in the JSON data
+        const parameterName = jsonData.parameterName;
+        
+        // Update the HTML label with the message
+        if(parameterName === "gain")
+        {
+            const mapped_value = mapRange(jsonData.parameterValue, 0.0, 1.0, gainSlider.min, gainSlider.max)
+            console.log('gainSlider: ', mapped_value);
+            
+            gainSlider.value = mapped_value;
+            gainValueLabel.innerText = gainSlider.value;
+        }
+        else if(parameterName === "invertPhase")
+        {
+            console.log('invertPhase: ', jsonData.parameterValue);
+
+            toggleInvertPhase.checked = jsonData.parameterValue;
+            if(toggleInvertPhase.checked){
+                invertPhaseValueLabel.innerText = "ON";
+            }
+            else{
+                invertPhaseValueLabel.innerText = "OFF";
+            }
+        }
+    }
+
+    // JavaScript code defining the Hello function
+    function Hello() {
+        // This is the function that will be called from C++
+        console.log('Hello from JavaScript!');
+        
+        // You can perform other actions or return data as needed
+    }
+
+    // JavaScript code defining the Hello function
+    function HelloWithJson(jsonData) {
+        // This is the function that will be called from C++
+        console.log('HelloWithJson: ', jsonData);
+        
+        // Access the 'message' property in the JSON data
+        var message = jsonData.message;
+
+        // Update the HTML label with the message
+        document.getElementById('messageBox').innerText = 'Message from C++: ' + message;
+
+        // You can perform other actions or return data as needed
+    }
+
+    // Invoke C++ callback for requesting initial update.
+    onInitialUpdate();
+</script>
+
+
+</body>
+</html>
