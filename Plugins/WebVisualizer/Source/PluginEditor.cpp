@@ -279,38 +279,49 @@ void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& param
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
+    // Process onReceiveAudioBuffer.
     {
         auto fifo_access = this->processorRef.getStereoAudioFIFOAccess();
 
+        auto object_to_send = choc::json::create();
+        bool should_eval_js = false;
         const int num_samples_to_read = 2400;
 
-        if (fifo_access.left->getUsedSlots() > num_samples_to_read && 
-            fifo_access.right->getUsedSlots() > num_samples_to_read)
+        if (fifo_access.left->getUsedSlots() > num_samples_to_read)
         {
             std::vector<float> left_array;
+
+            for (int sample_idx = 0; sample_idx < num_samples_to_read; sample_idx++)
+            {
+                float value = 0.0f;
+                fifo_access.left->pop (value);
+                left_array.push_back (value);
+            }
+
+            object_to_send.addMember ("audio_samples_left", choc::value::createArray (left_array));
+
+            should_eval_js = true;
+        }
+
+        if (fifo_access.right->getUsedSlots() > num_samples_to_read)
+        {
             std::vector<float> right_array;
 
             for (int sample_idx = 0; sample_idx < num_samples_to_read; sample_idx++)
             {
-                {
-                    float value = 0.0f;
-                    fifo_access.left->pop (value);
-                    left_array.push_back (value);
-                }
-                {
-                    float value = 0.0f;
-                    fifo_access.right->pop (value);
-                    right_array.push_back (value);
-                }
+                float value = 0.0f;
+                fifo_access.right->pop (value);
+                right_array.push_back (value);
             }
 
-            auto object_to_send = choc::json::create (
-                "audio_samples_left", choc::value::createArray (left_array),
-                "audio_samples_right", choc::value::createArray (right_array)
-            );
+            object_to_send.addMember ("audio_samples_right", choc::value::createArray (right_array));
 
+            should_eval_js = true;
+        }
+
+        if (should_eval_js)
+        {
             juce::String javascript = juce::String ("onReceiveAudioBuffer(") + choc::json::toString (object_to_send) + juce::String (")");
-
             this->chocWebView->evaluateJavascript (javascript.toStdString());
         }
     }
