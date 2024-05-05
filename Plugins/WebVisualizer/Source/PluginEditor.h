@@ -10,6 +10,7 @@ class AudioPluginAudioProcessorEditor final
     : public juce::AudioProcessorEditor
     , private juce::AudioProcessorValueTreeState::Listener
     , private juce::ValueTree::Listener
+    , private juce::Timer
 {
 public:
     explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
@@ -22,6 +23,8 @@ public:
 private:
     //==============================================================================
     virtual void parameterChanged(const juce::String& parameterID, float newValue) override;
+
+    virtual void timerCallback() override;
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

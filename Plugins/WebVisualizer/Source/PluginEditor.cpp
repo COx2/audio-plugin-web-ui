@@ -212,6 +212,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     
     valueTreeState.addParameterListener("gain", this);
     valueTreeState.addParameterListener("invertPhase", this);
+
+    startTimerHz (30);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -273,4 +275,43 @@ void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& param
 
       this->chocWebView->evaluateJavascript(javascript.toStdString());
   }
+}
+
+void AudioPluginAudioProcessorEditor::timerCallback()
+{
+    {
+        auto fifo_access = this->processorRef.getStereoAudioFIFOAccess();
+
+        const int num_samples_to_read = 2400;
+
+        if (fifo_access.left->getUsedSlots() > num_samples_to_read && 
+            fifo_access.right->getUsedSlots() > num_samples_to_read)
+        {
+            std::vector<float> left_array;
+            std::vector<float> right_array;
+
+            for (int sample_idx = 0; sample_idx < num_samples_to_read; sample_idx++)
+            {
+                {
+                    float value = 0.0f;
+                    fifo_access.left->pop (value);
+                    left_array.push_back (value);
+                }
+                {
+                    float value = 0.0f;
+                    fifo_access.right->pop (value);
+                    right_array.push_back (value);
+                }
+            }
+
+            auto object_to_send = choc::json::create (
+                "audio_samples_left", choc::value::createArray (left_array),
+                "audio_samples_right", choc::value::createArray (right_array)
+            );
+
+            juce::String javascript = juce::String ("onReceiveAudioBuffer(") + choc::json::toString (object_to_send) + juce::String (")");
+
+            this->chocWebView->evaluateJavascript (javascript.toStdString());
+        }
+    }
 }

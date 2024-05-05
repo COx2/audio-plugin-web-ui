@@ -100,8 +100,8 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
     previousGain = *gainParameter * phase;
 
-    audioFFIO_Left.reset (65536, 0.0f);
-    audioFFIO_Right.reset (65536, 0.0f);
+    audioFFIO_Left.reset (4800, 0.0f);
+    audioFFIO_Right.reset (4800, 0.0f);
 
     sineOsc_Left.setFrequency (880, sampleRate);
     sineOsc_Left.resetPhase();
@@ -115,8 +115,8 @@ void AudioPluginAudioProcessor::releaseResources()
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 
-    audioFFIO_Left.reset (65536, 0.0f);
-    audioFFIO_Right.reset (65536, 0.0f);
+    audioFFIO_Left.reset (4800, 0.0f);
+    audioFFIO_Right.reset (4800, 0.0f);
 }
 
 bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -164,17 +164,19 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
     auto currentGain = *gainParameter * phase;
 
-    //for (int sample_idx = 0; sample_idx < buffer.getNumSamples(); sample_idx++)
-    //{
-    //    if (buffer.getNumChannels() > 0)
-    //    {
-    //        buffer.getWritePointer (0)[sample_idx] = sineOsc_Left.getSample();
-    //    }
-    //    if (buffer.getNumChannels() > 1)
-    //    {
-    //        buffer.getWritePointer (1)[sample_idx] = sineOsc_Right.getSample();
-    //    }
-    //}
+#if 0
+    for (int sample_idx = 0; sample_idx < buffer.getNumSamples(); sample_idx++)
+    {
+        if (buffer.getNumChannels() > 0)
+        {
+            buffer.getWritePointer (0)[sample_idx] = sineOsc_Left.getSample();
+        }
+        if (buffer.getNumChannels() > 1)
+        {
+            buffer.getWritePointer (1)[sample_idx] = sineOsc_Right.getSample();
+        }
+    }
+#endif
 
     if (juce::approximatelyEqual (currentGain, previousGain))
     {
