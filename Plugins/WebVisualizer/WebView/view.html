@@ -133,26 +133,25 @@
         canvas.style('z-index', '-1'); // Move the canvas behind other elements
 
         this_audio_buffer = {};
+        this_audio_buffer.audio_samples_left = {};
+        this_audio_buffer.audio_samples_right = {};
 
         frameRate(30);
     }
 
-    async function updateAudioBuffer() {
-        this_audio_buffer = await NativeFunction_RequestAudioBuffer();
+    // JavaScript code defining the function to call from Native.
+    function onReceiveAudioBuffer(jsonData) {
+        this_audio_buffer.audio_samples_left = jsonData.audio_samples_left;
+        this_audio_buffer.audio_samples_right = jsonData.audio_samples_right;
     }
 
     function draw() {
         background(0); // Set background to black
 
-        updateAudioBuffer();
-
         if(this_audio_buffer === null)
         {
             return;
         }
-
-        console.log(this_audio_buffer.audio_samples_left);
-        console.log(this_audio_buffer.audio_samples_right);
 
         {
             let waveform_left = this_audio_buffer.audio_samples_left;
@@ -180,7 +179,7 @@
                 return;
             }
 
-            stroke('green');
+            stroke('cyan');
             strokeWeight(4);
 
             for (let i = 0; i< waveform_right.length; i++){
@@ -191,7 +190,7 @@
         }
     }
 
-    // ブラウザのウインドウサイズを変更すると、この関数が呼ばれます。
+    // This function is called when the browser window size is changed.
     function windowResized() {
         resizeCanvas(windowWidth, windowHeight);
     }
@@ -200,8 +199,6 @@
 <!-- Your HTML content here -->
 <div id="content">
     <h1>WebGain</h1>
-
-    <button onclick="NativeFunction_HelloToNative()">クリック</button>
 
     <p>Gain [<span id="gainValueLabel">50</span>]</p>
     <input type="range" min="0" max="100" value="50" id="gainSlider">
@@ -288,46 +285,6 @@
                 invertPhaseValueLabel.innerText = "OFF";
             }
         }
-    }
-
-    // JavaScript code defining the Hello function
-    function Hello() {
-        // This is the function that will be called from C++
-        console.log('Hello from JavaScript!');
-        
-        // You can perform other actions or return data as needed
-    }
-
-    // JavaScript code to call the function addressed on native code.
-    function NativeFunction_HelloToNative() {
-        // This is the function that will be called on C++
-        console.log('Hello from JavaScript!');
-
-        return onHelloToNative('Hello from JavaScript!');
-        // You can perform other actions or return data as needed
-    }
-
-    // JavaScript code to call the function addressed on native code.
-    function NativeFunction_RequestAudioBuffer() {
-        // This is the function that will be called on C++
-        console.log('NativeFunction_RequestAudioBuffer');
-
-        return onRequestAudioBuffer('');
-        // You can perform other actions or return data as needed
-    }
-
-    // JavaScript code defining the Hello function
-    function HelloWithJson(jsonData) {
-        // This is the function that will be called from C++
-        console.log('HelloWithJson: ', jsonData);
-        
-        // Access the 'message' property in the JSON data
-        var message = jsonData.message;
-
-        // Update the HTML label with the message
-        document.getElementById('messageBox').innerText = 'Message from C++: ' + message;
-
-        // You can perform other actions or return data as needed
     }
 
     // Invoke C++ callback for requesting initial update.
