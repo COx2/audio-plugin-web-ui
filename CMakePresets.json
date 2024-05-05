@@ -58,7 +58,9 @@
                 "WebGain_All",
                 "WebGain_CLAP",
                 "DenoGain_All",
-                "DenoGain_CLAP"
+                "DenoGain_CLAP",
+                "WebVisualizer_All",
+                "WebVisualizer_CLAP"
             ]
         },
         {

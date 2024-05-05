@@ -1,5 +1,6 @@
 add_subdirectory(WebGain)
 add_subdirectory(DenoGain)
+add_subdirectory(WebVisualizer)
 
 # Experimental projects.
 # add_subdirectory(Experimental/threejs-synth)

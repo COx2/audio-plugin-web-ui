@@ -25,14 +25,17 @@ if(platform.toString() === "windows")
 {
     await $`cmake --install builds/vs2022 --prefix Release --component WebGain_VST3`;
     await $`cmake --install builds/vs2022 --prefix Release --component DenoGain_VST3`;
+    await $`cmake --install builds/vs2022 --prefix Release --component WebVisualizer_VST3`;
 }
 else if(platform.toString() === "darwin")
 {
     await $`cmake --install builds/xcode --prefix Release --component WebGain_VST3`;
     await $`cmake --install builds/xcode --prefix Release --component DenoGain_VST3`;
+    await $`cmake --install builds/xcode --prefix Release --component WebVisualizer_VST3`;
 }
 else if(platform.toString() === "linux")
 {
     await $`cmake --install builds/ninja-multi --prefix Release --component WebGain_VST3`;
     await $`cmake --install builds/ninja-multi --prefix Release --component DenoGain_VST3`;
+    await $`cmake --install builds/ninja-multi --prefix Release --component WebVisualizer_VST3`;
 }
