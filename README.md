@@ -21,6 +21,12 @@ It utilizes a technology stack commonly used in web frontend development, includ
 
 ![DenoGain](img/denogain.gif)
 
+### WebVisualizer
+
+This is an experimental implementation for passing the audio buffer receiverd from the plugin's audio callback to WebView and audio visualization using p5.js.
+
+![WebVisualizer](img/webvisualizer.gif)
+
 ## How to build
 
 ### Prerequisites
