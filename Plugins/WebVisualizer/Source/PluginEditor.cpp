@@ -51,26 +51,12 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     invertAttachment.reset (new ButtonAttachment (valueTreeState, "invertPhase", invertButton));
 
     choc::ui::WebView::Options options;
+
+#if JUCE_DEBUG
+    options.enableDebugMode = true;
+#else
     options.enableDebugMode = false;
-
-    // auto asset_directory = juce::File("/path/to/asset");
-    
-    // options.fetchResource = [this, assetDirectory = asset_directory](const choc::ui::WebView::Options::Path& path)
-    // -> std::optional<choc::ui::WebView::Options::Resource> {
-    //   auto relative_path = "." + (path == "/" ? "/index.html" : path);
-    //   auto file_to_read = assetDirectory.getChildFile(relative_path);
-
-    //   juce::Logger::outputDebugString(file_to_read.getFullPathName());
-
-    //   juce::MemoryBlock memory_block;
-    //   if (!file_to_read.existsAsFile() || !file_to_read.loadFileAsData(memory_block))
-    //     return {};
-
-    //   return choc::ui::WebView::Options::Resource {
-    //       std::vector<uint8_t>(memory_block.begin(), memory_block.end()),
-    //       getMimeType(file_to_read.getFileExtension().toStdString())
-    //   };
-    // };
+#endif
 
     chocWebView = std::make_unique<choc::ui::WebView>(options);
 #if JUCE_WINDOWS
@@ -91,7 +77,24 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     setSize (800, 400);
     setResizable(true, true);
 
-    auto web_view_callback_on_toggle_changed =
+    auto web_view_callback_on_hello_to_native =
+        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
+        -> choc::value::Value
+    {
+        juce::Logger::outputDebugString ("web_view_callback_hello_to_native called.");
+
+        if (safe_this.getComponent() == nullptr)
+        {
+            return choc::value::Value (-1);
+        }
+
+        const auto choc_json_string = choc::json::toString (args);
+        juce::Logger::outputDebugString (choc_json_string);
+
+        return choc::value::Value (0);
+    };
+
+    auto web_view_callback_on_request_audio_buffer =
         [safe_this = juce::Component::SafePointer(this)](const choc::value::ValueView& args)
         -> choc::value::Value {
         if (safe_this.getComponent() == nullptr)
@@ -102,41 +105,82 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         const auto choc_json_string = choc::json::toString(args);
         //juce::Logger::outputDebugString(choc_json_string);
 
-        const auto juce_json = juce::JSON::parse(choc_json_string);
-        safe_this->valueTreeState.getParameter("invertPhase")->setValueNotifyingHost((bool)juce_json[0]["toggleValue"]);
+        auto fifo_access = safe_this->processorRef.getStereoAudioFIFOAccess();
 
-        return choc::value::Value(0);
+        const int num_samples_to_read = 240;
+
+        if (fifo_access.left->getUsedSlots() > num_samples_to_read && fifo_access.right->getUsedSlots() > num_samples_to_read)
+        {
+            std::vector<float> left_array;
+            std::vector<float> right_array;
+            
+            for (int sample_idx = 0; sample_idx < num_samples_to_read; sample_idx++)
+            {
+                {
+                    float value = 0.0f;
+                    fifo_access.left->pop (value);
+                    left_array.push_back (value);
+                }
+                {
+                    float value = 0.0f;
+                    fifo_access.right->pop (value);
+                    right_array.push_back (value);
+                }
+            }
+
+            auto object_to_send = choc::json::create (
+                "audio_samples_left", choc::value::createArray (left_array),
+                "audio_samples_right", choc::value::createArray (right_array)
+            );
+
+            return choc::value::Value (object_to_send);
+        }
+
+
+        return safe_this->cachedValueForView;
+    };
+
+    auto web_view_callback_on_toggle_changed =
+        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
+        -> choc::value::Value
+    {
+        if (safe_this.getComponent() == nullptr)
+        {
+            return choc::value::Value (-1);
+        }
+
+        const auto choc_json_string = choc::json::toString (args);
+
+        const auto juce_json = juce::JSON::parse (choc_json_string);
+        safe_this->valueTreeState.getParameter ("invertPhase")->setValueNotifyingHost ((bool) juce_json[0]["toggleValue"]);
+
+        return choc::value::Value (0);
     };
 
     auto web_view_callback_on_sliider_changed =
-        [safe_this = juce::Component::SafePointer(this)](const choc::value::ValueView& args)
-        -> choc::value::Value {
+        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
+        -> choc::value::Value
+    {
         if (safe_this.getComponent() == nullptr)
         {
-        return choc::value::Value(-1);
+            return choc::value::Value (-1);
         }
 
-        const auto choc_json_string = choc::json::toString(args);
-        //juce::Logger::outputDebugString(choc_json_string);
+        const auto choc_json_string = choc::json::toString (args);
 
-        const auto juce_json = juce::JSON::parse(choc_json_string);
-        //if (false)
-        //{
-        //    juce::Logger::outputDebugString(juce_json[0]["sliderName"]);
-        //    juce::Logger::outputDebugString(juce_json[0]["sliderValue"]);
-        //    juce::Logger::outputDebugString(juce_json[0]["sliderRangeMin"]);
-        //    juce::Logger::outputDebugString(juce_json[0]["sliderRangeMax"]);
-        //}
+        const auto juce_json = juce::JSON::parse (choc_json_string);
 
-        const auto normalised_value = juce::jmap<float>(
-        (float)juce_json[0]["sliderValue"], 
-        (float)juce_json[0]["sliderRangeMin"], (float)juce_json[0]["sliderRangeMax"],
-        0.0f, 1.0f);
+        const auto normalised_value = juce::jmap<float> (
+            (float) juce_json[0]["sliderValue"],
+            (float) juce_json[0]["sliderRangeMin"],
+            (float) juce_json[0]["sliderRangeMax"],
+            0.0f,
+            1.0f);
 
         // Should fix range convert.
-        safe_this->valueTreeState.getParameter("gain")->setValueNotifyingHost(normalised_value);
+        safe_this->valueTreeState.getParameter ("gain")->setValueNotifyingHost (normalised_value);
 
-        return choc::value::Value(0);
+        return choc::value::Value (0);
     };
 
     auto web_view_callback_on_initial_update =
@@ -153,12 +197,18 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         return choc::value::Value(0);
     };
 
-    chocWebView->bind("onToggleChanged", web_view_callback_on_toggle_changed);
-    chocWebView->bind("onSliderChanged", web_view_callback_on_sliider_changed);
-    chocWebView->bind("onInitialUpdate", web_view_callback_on_initial_update);
+    chocWebView->bind ("onHelloToNative", web_view_callback_on_hello_to_native);
+    chocWebView->bind ("onRequestAudioBuffer", web_view_callback_on_request_audio_buffer);
+    chocWebView->bind ("onToggleChanged", web_view_callback_on_toggle_changed);
+    chocWebView->bind ("onSliderChanged", web_view_callback_on_sliider_changed);
+    chocWebView->bind ("onInitialUpdate", web_view_callback_on_initial_update);
 
-    const auto html = juce::String::createStringFromData(WebView::view_html, WebView::view_htmlSize);
-    chocWebView->setHTML(html.toStdString());
+#if JUCE_DEBUG
+    chocWebView->navigate ("http://localhost:8080/view.html");
+#else
+    const auto html = juce::String::createStringFromData (WebView::view_html, WebView::view_htmlSize);
+    chocWebView->setHTML (html.toStdString());
+#endif
     
     valueTreeState.addParameterListener("gain", this);
     valueTreeState.addParameterListener("invertPhase", this);

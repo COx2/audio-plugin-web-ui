@@ -132,48 +132,63 @@
         canvas.position(0, 0);
         canvas.style('z-index', '-1'); // Move the canvas behind other elements
 
-        frameRate(30);
+        this_audio_buffer = {};
 
-        // Create initial particles
-        for (let i = 0; i < 100; i++) {
-            particles.push(createParticle());
-        }
+        frameRate(30);
+    }
+
+    async function updateAudioBuffer() {
+        this_audio_buffer = await NativeFunction_RequestAudioBuffer();
     }
 
     function draw() {
         background(0); // Set background to black
 
-        // Update and display particles
-        for (let i = 0; i < particles.length; i++) {
-            particles[i].update();
-            particles[i].display();
+        updateAudioBuffer();
+
+        if(this_audio_buffer === null)
+        {
+            return;
         }
-    }
 
-    function createParticle() {
-        return {
-            x: random(width),
-            y: random(height),
-            size: random(2, 8),
-            color: color(random(100, 255), random(100, 255), random(100, 255)),
-            xSpeed: random(-2, 2),
-            ySpeed: random(-2, 2),
-            update: function () {
-                this.x += this.xSpeed;
-                this.y += this.ySpeed;
+        console.log(this_audio_buffer.audio_samples_left);
+        console.log(this_audio_buffer.audio_samples_right);
 
-                // Wrap particles around the canvas
-                if (this.x < 0) this.x = width;
-                if (this.x > width) this.x = 0;
-                if (this.y < 0) this.y = height;
-                if (this.y > height) this.y = 0;
-            },
-            display: function () {
-                fill(this.color);
-                noStroke();
-                ellipse(this.x, this.y, this.size, this.size);
+        {
+            let waveform_left = this_audio_buffer.audio_samples_left;
+
+            if (waveform_left === undefined)
+            {
+                return;
             }
-        };
+    
+            stroke('orange'); 
+            strokeWeight(4);
+
+            for (let i = 0; i< waveform_left.length; i++){
+                let x = map(i, 0, waveform_left.length, 0, width);
+                let y = map( waveform_left[i], -1, 1, 0, height);
+                point(x,y);
+            }
+        }
+
+        {
+            let waveform_right = this_audio_buffer.audio_samples_right;
+
+            if (waveform_right === undefined)
+            {
+                return;
+            }
+
+            stroke('green');
+            strokeWeight(4);
+
+            for (let i = 0; i< waveform_right.length; i++){
+                let x = map(i, 0, waveform_right.length, 0, width);
+                let y = map( waveform_right[i], -1, 1, 0, height);
+                point(x,y);
+            }
+        }
     }
 
     // ブラウザのウインドウサイズを変更すると、この関数が呼ばれます。
@@ -186,11 +201,14 @@
 <div id="content">
     <h1>WebGain</h1>
 
+    <button onclick="NativeFunction_HelloToNative()">クリック</button>
+
     <p>Gain [<span id="gainValueLabel">50</span>]</p>
     <input type="range" min="0" max="100" value="50" id="gainSlider">
     
     <p>Invert Phase [<span id="invertPhaseValueLabel"></span>]</p>
     <input type="checkbox" id="toggleInvertPhase">
+    
 </div>
 
 <!-- Your Script content here -->
@@ -277,6 +295,24 @@
         // This is the function that will be called from C++
         console.log('Hello from JavaScript!');
         
+        // You can perform other actions or return data as needed
+    }
+
+    // JavaScript code to call the function addressed on native code.
+    function NativeFunction_HelloToNative() {
+        // This is the function that will be called on C++
+        console.log('Hello from JavaScript!');
+
+        return onHelloToNative('Hello from JavaScript!');
+        // You can perform other actions or return data as needed
+    }
+
+    // JavaScript code to call the function addressed on native code.
+    function NativeFunction_RequestAudioBuffer() {
+        // This is the function that will be called on C++
+        console.log('NativeFunction_RequestAudioBuffer');
+
+        return onRequestAudioBuffer('');
         // You can perform other actions or return data as needed
     }
 

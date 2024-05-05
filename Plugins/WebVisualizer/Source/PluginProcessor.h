@@ -1,6 +1,8 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <containers/choc_SingleReaderSingleWriterFIFO.h>
+#include <audio/choc_Oscillators.h>
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -44,6 +46,13 @@ public:
 
     //==============================================================================
     juce::AudioProcessorValueTreeState& getAPVTS() { return *parameters.get(); }
+
+    struct StereoAudioFIFOAccess
+    {
+        choc::fifo::SingleReaderSingleWriterFIFO<float>* left;
+        choc::fifo::SingleReaderSingleWriterFIFO<float>* right;
+    };
+    StereoAudioFIFOAccess getStereoAudioFIFOAccess();
     
 private:
     //==============================================================================
@@ -53,6 +62,12 @@ private:
  
     std::atomic<float>* phaseParameter = nullptr;
     std::atomic<float>* gainParameter  = nullptr;
+
+    choc::fifo::SingleReaderSingleWriterFIFO<float> audioFFIO_Left;
+    choc::fifo::SingleReaderSingleWriterFIFO<float> audioFFIO_Right;
+    
+    choc::oscillator::Sine<float> sineOsc_Left;
+    choc::oscillator::Sine<float> sineOsc_Right;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

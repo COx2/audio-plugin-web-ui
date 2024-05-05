@@ -16,6 +16,9 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     
     phaseParameter = parameters->getRawParameterValue ("invertPhase");
     gainParameter  = parameters->getRawParameterValue ("gain");
+
+    audioFFIO_Left.reset (4800, 0.0f);
+    audioFFIO_Right.reset (4800, 0.0f);
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -96,12 +99,24 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     
     auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
     previousGain = *gainParameter * phase;
+
+    audioFFIO_Left.reset (65536, 0.0f);
+    audioFFIO_Right.reset (65536, 0.0f);
+
+    sineOsc_Left.setFrequency (880, sampleRate);
+    sineOsc_Left.resetPhase();
+
+    sineOsc_Right.setFrequency (1320, sampleRate);
+    sineOsc_Right.resetPhase();
 }
 
 void AudioPluginAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+
+    audioFFIO_Left.reset (65536, 0.0f);
+    audioFFIO_Right.reset (65536, 0.0f);
 }
 
 bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -149,6 +164,18 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
     auto currentGain = *gainParameter * phase;
 
+    //for (int sample_idx = 0; sample_idx < buffer.getNumSamples(); sample_idx++)
+    //{
+    //    if (buffer.getNumChannels() > 0)
+    //    {
+    //        buffer.getWritePointer (0)[sample_idx] = sineOsc_Left.getSample();
+    //    }
+    //    if (buffer.getNumChannels() > 1)
+    //    {
+    //        buffer.getWritePointer (1)[sample_idx] = sineOsc_Right.getSample();
+    //    }
+    //}
+
     if (juce::approximatelyEqual (currentGain, previousGain))
     {
         buffer.applyGain (currentGain);
@@ -158,6 +185,19 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, currentGain);
         previousGain = currentGain;
     }
+
+    for (int sample_idx = 0; sample_idx < buffer.getNumSamples(); sample_idx++)
+    {
+        if (buffer.getNumChannels() > 0)
+        {
+            audioFFIO_Left.push (buffer.getReadPointer (0)[sample_idx]);
+        }
+        if (buffer.getNumChannels() > 1)
+        {
+            audioFFIO_Right.push (buffer.getReadPointer (1)[sample_idx]);
+        }
+    }
+
 }
 
 //==============================================================================
@@ -195,6 +235,11 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName (parameters->state.getType()))
             parameters->replaceState (juce::ValueTree::fromXml (*xmlState));
+}
+
+AudioPluginAudioProcessor::StereoAudioFIFOAccess AudioPluginAudioProcessor::getStereoAudioFIFOAccess()
+{
+    return { &audioFFIO_Left, &audioFFIO_Right };
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout()

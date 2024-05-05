@@ -48,5 +48,7 @@ private:
     std::unique_ptr<juce::XEmbedComponent> juceXEmbedView;
 #endif
 
+    choc::value::Value cachedValueForView;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };
