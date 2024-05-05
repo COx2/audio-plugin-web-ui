@@ -55,7 +55,12 @@
             "name": "base",
             "hidden": true,
             "targets":[
-                "WebVisualizer_All"
+                "WebGain_All",
+                "WebGain_CLAP",
+                "DenoGain_All",
+                "DenoGain_CLAP",
+                "WebVisualizer_All",
+                "WebVisualizer_CLAP"
             ]
         },
         {
