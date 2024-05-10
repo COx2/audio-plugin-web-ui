@@ -5,6 +5,7 @@ import './App.css'
 import MidiKeyboard from './components/MidiKeyboard.tsx';
 
 function App() {
+  // @ts-ignore
   const [count, setCount] = useState(0)
 
   return (

@@ -1,4 +1,6 @@
+// @ts-ignore
 import React from 'react';
+// @ts-ignore
 import { Piano, KeyboardShortcuts, MidiNumbers } from 'react-piano';
 import 'react-piano/dist/styles.css';
 import useWindowFunction from '../native_bridges/useWindowFunction';
@@ -19,11 +21,11 @@ const MidiKeyboard = () => {
     return (
         <Piano
         noteRange={{ first: firstNote, last: lastNote }}
-        playNote={(midiNumber) => {
+        playNote={(midiNumber: number) => {
             // Play a given note - see notes below
             onMidiNoteOn(1, midiNumber)
         }}
-        stopNote={(midiNumber) => {
+        stopNote={(midiNumber: number) => {
             // Stop playing a given note - see notes below
             onMidiNoteOff(1, midiNumber)
         }}
