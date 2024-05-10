@@ -60,7 +60,9 @@
                 "DenoGain_All",
                 "DenoGain_CLAP",
                 "WebVisualizer_All",
-                "WebVisualizer_CLAP"
+                "WebVisualizer_CLAP",
+                "ReactSynth_All",
+                "ReactSynth_CLAP"
             ]
         },
         {
