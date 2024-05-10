@@ -4,4 +4,4 @@ include(CPM)
 
 #Fetching CHOC from git
 #IF you want to instead point it to a local version, you can invoke CMake with
-CPMAddPackage("gh:Tracktion/choc#2512542b2d65f3e92df7f2f1f7eeb712fa41a0de")
+CPMAddPackage("gh:Tracktion/choc#d0bca87029d75ccdad2987ce5e9a927b00a0f5a4")
