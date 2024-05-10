@@ -3,6 +3,7 @@
 #include "WebViewBundleData.h"
 
 //==============================================================================
+//==============================================================================
 namespace
 {
     std::string getMimeType(std::string const& ext)
@@ -30,6 +31,41 @@ namespace
         paramLabelWidth    = 80,
         paramSliderWidth   = 300
     };
+
+    static std::string getExtension (juce::String filename)
+    {
+        return filename.fromLastOccurrenceOf (".", false, false).toStdString();
+    }
+
+    std::optional<choc::ui::WebView::Options::Resource> getResourceFromZipFile (juce::ZipFile& zipFile, const std::string& path)
+    {
+        auto file_path = (path == "/" ? "/index.html" : path);
+
+        file_path = file_path.erase(0, 1);
+
+        const auto zip_entry_idx = zipFile.getIndexOfFileName (file_path);
+
+        if (zip_entry_idx < 0)
+        {
+            return std::nullopt;
+        }
+
+        const auto* zip_entry = zipFile.getEntry (zip_entry_idx);
+        if (zip_entry == nullptr)
+        {
+            return std::nullopt;
+        }
+
+        auto zipped_reader = std::unique_ptr<juce::InputStream>(zipFile.createStreamForEntry (*zip_entry));
+        std::string mime_type = getMimeType ("." + getExtension (zip_entry->filename));
+        uint64_t uncompressed_size = zip_entry->uncompressedSize;
+
+        juce::MemoryBlock memory_block (uncompressed_size);
+
+        zipped_reader->read (memory_block.begin(), uncompressed_size);
+
+        return choc::ui::WebView::Options::Resource (memory_block.toString().toStdString(), mime_type);
+    }
 }
 
 //==============================================================================
@@ -37,8 +73,11 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     : AudioProcessorEditor (&p)
     , processorRef (p)
     , valueTreeState (p.getAPVTS())
+    , misWebViewBundle (WebView::WebViewBundle_zip, WebView::WebViewBundle_zipSize, false)
 {
     juce::ignoreUnused (processorRef);
+
+    zipWebViewBundle = std::make_unique<juce::ZipFile> (misWebViewBundle);
     
     gainLabel.setText ("Gain", juce::dontSendNotification);
     addAndMakeVisible (gainLabel);
@@ -50,6 +89,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     addAndMakeVisible (invertButton);
     invertAttachment.reset (new ButtonAttachment (valueTreeState, "invertPhase", invertButton));
 
+    // Create webview.
     choc::ui::WebView::Options options;
 
 #if JUCE_DEBUG
@@ -58,31 +98,73 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     options.enableDebugMode = false;
 #endif
 
-    chocWebView = std::make_unique<choc::ui::WebView>(options);
-#if JUCE_WINDOWS
-    juceHwndView = std::make_unique<juce::HWNDComponent>();
-    juceHwndView->setHWND(chocWebView->getViewHandle());
-    addAndMakeVisible(juceHwndView.get());
-#elif JUCE_MAC
-    juceNsView = std::make_unique<juce::NSViewComponent>();
-    juceNsView->setView(chocWebView->getViewHandle());
-    addAndMakeVisible(juceNsView.get());
-#elif JUCE_LINUX
-    juceXEmbedView = std::make_unique<juce::XEmbedComponent>(chocWebView->getViewHandle());
-    addAndMakeVisible(juceXEmbedView.get());
-#endif
+    options.fetchResource = [this] (const std::string& path)
+        -> std::optional<choc::ui::WebView::Options::Resource>
+    {
+        if (this->zipWebViewBundle.get() == nullptr)
+        {
+            return std::nullopt;
+        }
 
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (800, 400);
-    setResizable(true, true);
+        return getResourceFromZipFile (*this->zipWebViewBundle, path);
+    };
 
-    auto web_view_callback_on_hello_to_native =
+    chocWebView = std::make_unique<choc::ui::WebView> (options);
+
+    auto web_view_callback_on_midi_note_on =
         [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
         -> choc::value::Value
     {
-        juce::Logger::outputDebugString ("web_view_callback_hello_to_native called.");
+        if (safe_this.getComponent() == nullptr)
+        {
+            return choc::value::Value (-1);
+        }
 
+        const auto choc_json_string = choc::json::toString (args);
+        //juce::Logger::outputDebugString (choc_json_string);
+
+        const auto json = juce::JSON::parse (choc_json_string);
+
+        const auto midi_channel = json.getArray()->getReference(0);
+        const auto midi_note_number = json.getArray()->getReference (1);
+
+        if (! safe_this->midiKeyboardStatePtr.expired())
+        {
+            safe_this->midiKeyboardStatePtr.lock()->noteOn ((int) midi_channel, (int) midi_note_number, 1.0f);
+        }
+
+        return choc::value::Value (0);
+    };
+
+    auto web_view_callback_on_midi_note_off =
+        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
+        -> choc::value::Value
+    {
+        if (safe_this.getComponent() == nullptr)
+        {
+            return choc::value::Value (-1);
+        }
+
+        const auto choc_json_string = choc::json::toString (args);
+        //juce::Logger::outputDebugString (choc_json_string);
+
+        const auto json = juce::JSON::parse (choc_json_string);
+
+        const auto midi_channel = json.getArray()->getReference (0);
+        const auto midi_note_number = json.getArray()->getReference (1);
+
+        if (! safe_this->midiKeyboardStatePtr.expired())
+        {
+            safe_this->midiKeyboardStatePtr.lock()->noteOff ((int) midi_channel, (int) midi_note_number, 0.0f);
+        }
+
+        return choc::value::Value (0);
+    };
+
+    auto web_view_callback_on_initial_update =
+        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
+        -> choc::value::Value
+    {
         if (safe_this.getComponent() == nullptr)
         {
             return choc::value::Value (-1);
@@ -94,126 +176,29 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         return choc::value::Value (0);
     };
 
-    auto web_view_callback_on_request_audio_buffer =
-        [safe_this = juce::Component::SafePointer(this)](const choc::value::ValueView& args)
-        -> choc::value::Value {
-        if (safe_this.getComponent() == nullptr)
-        {
-            return choc::value::Value(-1);
-        }
-
-        const auto choc_json_string = choc::json::toString(args);
-        //juce::Logger::outputDebugString(choc_json_string);
-
-        auto fifo_access = safe_this->processorRef.getStereoAudioFIFOAccess();
-
-        const int num_samples_to_read = 240;
-
-        if (fifo_access.left->getUsedSlots() > num_samples_to_read && fifo_access.right->getUsedSlots() > num_samples_to_read)
-        {
-            std::vector<float> left_array;
-            std::vector<float> right_array;
-            
-            for (int sample_idx = 0; sample_idx < num_samples_to_read; sample_idx++)
-            {
-                {
-                    float value = 0.0f;
-                    fifo_access.left->pop (value);
-                    left_array.push_back (value);
-                }
-                {
-                    float value = 0.0f;
-                    fifo_access.right->pop (value);
-                    right_array.push_back (value);
-                }
-            }
-
-            auto object_to_send = choc::json::create (
-                "audio_samples_left", choc::value::createArray (left_array),
-                "audio_samples_right", choc::value::createArray (right_array)
-            );
-
-            return choc::value::Value (object_to_send);
-        }
-
-
-        return safe_this->cachedValueForView;
-    };
-
-    auto web_view_callback_on_toggle_changed =
-        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
-        -> choc::value::Value
-    {
-        if (safe_this.getComponent() == nullptr)
-        {
-            return choc::value::Value (-1);
-        }
-
-        const auto choc_json_string = choc::json::toString (args);
-
-        const auto juce_json = juce::JSON::parse (choc_json_string);
-        safe_this->valueTreeState.getParameter ("invertPhase")->setValueNotifyingHost ((bool) juce_json[0]["toggleValue"]);
-
-        return choc::value::Value (0);
-    };
-
-    auto web_view_callback_on_sliider_changed =
-        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
-        -> choc::value::Value
-    {
-        if (safe_this.getComponent() == nullptr)
-        {
-            return choc::value::Value (-1);
-        }
-
-        const auto choc_json_string = choc::json::toString (args);
-
-        const auto juce_json = juce::JSON::parse (choc_json_string);
-
-        const auto normalised_value = juce::jmap<float> (
-            (float) juce_json[0]["sliderValue"],
-            (float) juce_json[0]["sliderRangeMin"],
-            (float) juce_json[0]["sliderRangeMax"],
-            0.0f,
-            1.0f);
-
-        // Should fix range convert.
-        safe_this->valueTreeState.getParameter ("gain")->setValueNotifyingHost (normalised_value);
-
-        return choc::value::Value (0);
-    };
-
-    auto web_view_callback_on_initial_update =
-        [safe_this = juce::Component::SafePointer(this)](const choc::value::ValueView& args)
-        -> choc::value::Value {
-        if (safe_this.getComponent() == nullptr)
-        {
-          return choc::value::Value(-1);
-        }
-
-        safe_this->parameterChanged("gain", safe_this->valueTreeState.getRawParameterValue("gain")->load());
-        safe_this->parameterChanged("invertPhase", safe_this->valueTreeState.getRawParameterValue("invertPhase")->load());
-
-        return choc::value::Value(0);
-    };
-
-    chocWebView->bind ("onHelloToNative", web_view_callback_on_hello_to_native);
-    chocWebView->bind ("onRequestAudioBuffer", web_view_callback_on_request_audio_buffer);
-    chocWebView->bind ("onToggleChanged", web_view_callback_on_toggle_changed);
-    chocWebView->bind ("onSliderChanged", web_view_callback_on_sliider_changed);
+    chocWebView->bind ("onMidiNoteOn", web_view_callback_on_midi_note_on);
+    chocWebView->bind ("onMidiNoteOff", web_view_callback_on_midi_note_off);
     chocWebView->bind ("onInitialUpdate", web_view_callback_on_initial_update);
 
 #if JUCE_DEBUG
-    chocWebView->navigate ("http://localhost:8080/view.html");
-#else
-    const auto html = juce::String::createStringFromData (WebView::view_html, WebView::view_htmlSize);
-    chocWebView->setHTML (html.toStdString());
+    chocWebView->navigate ("http://localhost:5173");
 #endif
-    
+
+    juceWebViewHolder = createJUCEWebViewHolder (*chocWebView.get());
+    addAndMakeVisible (juceWebViewHolder.get());
+
+    // Parameter binding.
     valueTreeState.addParameterListener("gain", this);
     valueTreeState.addParameterListener("invertPhase", this);
 
+    // Make sure that before the constructor has finished, you've set the
+    // editor's size to whatever you need it to be.
+    setSize (1200, 600);
+    setResizable(true, true);
+
     startTimerHz (30);
+
+    midiKeyboardStatePtr = processorRef.getMidiKeyboardState();
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -240,13 +225,7 @@ void AudioPluginAudioProcessorEditor::resized()
 
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-#if JUCE_WINDOWS
-    juceHwndView->setBounds(getLocalBounds());
-#elif JUCE_MAC
-    juceNsView->setBounds(getLocalBounds());
-#elif JUCE_LINUX
-    juceXEmbedView->setBounds(getLocalBounds());
-#endif
+    juceWebViewHolder->setBounds (getLocalBounds());
 }
 
 void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& parameterID, float newValue)

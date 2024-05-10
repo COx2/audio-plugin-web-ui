@@ -45,6 +45,8 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
+    std::shared_ptr<juce::MidiKeyboardState> getMidiKeyboardState() const;
+
     juce::AudioProcessorValueTreeState& getAPVTS() { return *parameters.get(); }
 
     struct StereoAudioFIFOAccess
@@ -68,6 +70,8 @@ private:
     
     choc::oscillator::Sine<float> sineOsc_Left;
     choc::oscillator::Sine<float> sineOsc_Right;
+
+    std::shared_ptr<juce::MidiKeyboardState> midiKeyboardState;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

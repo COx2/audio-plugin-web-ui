@@ -30,6 +30,14 @@ private:
     // access the processor object that created it.
     AudioPluginAudioProcessor& processorRef;
 
+    std::unique_ptr<choc::ui::WebView> chocWebView;
+    std::unique_ptr<juce::Component> juceWebViewHolder;
+
+    juce::MemoryInputStream misWebViewBundle;
+    std::unique_ptr<juce::ZipFile> zipWebViewBundle;
+
+    std::weak_ptr<juce::MidiKeyboardState> midiKeyboardStatePtr;
+
     typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
     
@@ -42,15 +50,6 @@ private:
     juce::ToggleButton invertButton;
     std::unique_ptr<ButtonAttachment> invertAttachment;
     
-    std::unique_ptr<choc::ui::WebView> chocWebView;
-#if JUCE_WINDOWS
-    std::unique_ptr<juce::HWNDComponent> juceHwndView;
-#elif JUCE_MAC
-    std::unique_ptr<juce::NSViewComponent> juceNsView;
-#elif JUCE_LINUX
-    std::unique_ptr<juce::XEmbedComponent> juceXEmbedView;
-#endif
-
     choc::value::Value cachedValueForView;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
