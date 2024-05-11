@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import MidiKeyboard from './components/MidiKeyboard.tsx'
-// import GainKnob from './components/GainKnob.tsx'
+import GainKnob from './components/GainKnob.tsx'
 
 function App() {
   // @ts-ignore
@@ -9,9 +9,9 @@ function App() {
 
   return (
     <>
-      {/* <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+      <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
         <GainKnob/>
-      </div> */}
+      </div>
       <div>
         <MidiKeyboard/>
       </div>
