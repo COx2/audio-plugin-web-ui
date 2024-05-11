@@ -161,6 +161,40 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         return choc::value::Value (0);
     };
 
+    auto web_view_callback_on_sliider_changed =
+        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
+        -> choc::value::Value
+    {
+        if (safe_this.getComponent() == nullptr)
+        {
+            return choc::value::Value (-1);
+        }
+
+        const auto choc_json_string = choc::json::toString (args);
+        //juce::Logger::outputDebugString(choc_json_string);
+
+        const auto juce_json = juce::JSON::parse (choc_json_string);
+        //if (false)
+        //{
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderName"]);
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderValue"]);
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderRangeMin"]);
+        //    juce::Logger::outputDebugString(juce_json[0]["sliderRangeMax"]);
+        //}
+
+        const auto normalised_value = juce::jmap<float> (
+            (float) juce_json[0]["sliderValue"],
+            (float) juce_json[0]["sliderRangeMin"],
+            (float) juce_json[0]["sliderRangeMax"],
+            0.0f,
+            1.0f);
+
+        // Should fix range convert.
+        safe_this->valueTreeState.getParameter ("gain")->setValueNotifyingHost (normalised_value);
+
+        return choc::value::Value (0);
+    };
+
     auto web_view_callback_on_initial_update =
         [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
         -> choc::value::Value
@@ -178,6 +212,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     chocWebView->bind ("onMidiNoteOn", web_view_callback_on_midi_note_on);
     chocWebView->bind ("onMidiNoteOff", web_view_callback_on_midi_note_off);
+    chocWebView->bind ("onSliderChanged", web_view_callback_on_sliider_changed);
     chocWebView->bind ("onInitialUpdate", web_view_callback_on_initial_update);
 
 #define WEB_VIEW_FROM_SERVER 0
