@@ -2,7 +2,8 @@
 #include "PluginEditor.h"
 #include "WebViewBundleData.h"
 
-//==============================================================================
+#define WEB_VIEW_FROM_SERVER 0
+
 //==============================================================================
 namespace
 {
@@ -215,7 +216,36 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     chocWebView->bind ("onSliderChanged", web_view_callback_on_sliider_changed);
     chocWebView->bind ("onInitialUpdate", web_view_callback_on_initial_update);
 
-#define WEB_VIEW_FROM_SERVER 0
+    const auto script = R"(
+    // Utility functions.
+    function mapRange(value, fromMin, fromMax, toMin, toMax) {
+        const clampedValue = Math.min(Math.max(value, fromMin), fromMax);
+        const normalizedValue = (clampedValue - fromMin) / (fromMax - fromMin);
+        const mappedValue = normalizedValue * (toMax - toMin) + toMin;
+        return mappedValue;
+    }
+
+    // Event callback from JUCE.
+    function onParameterChanged(jsonData) {
+        // This is the function that will be called from C++
+        console.log('JSON from C++: onParameterChanged - ', jsonData);
+
+        // Access the 'type' property in the JSON data
+        const parameterName = jsonData.parameterName;
+
+        // Update the HTML label with the message
+        if(parameterName === "gain")
+        {
+            console.log('gainSlider: ');
+        }
+    }
+
+    // Invoke C++ callback for requesting initial update.
+    onInitialUpdate();
+    )";
+
+    chocWebView->addInitScript (script);
+
 #if WEB_VIEW_FROM_SERVER
     chocWebView->navigate ("http://localhost:5173");
 #endif
