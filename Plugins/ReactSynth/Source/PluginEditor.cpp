@@ -121,7 +121,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         }
 
         const auto choc_json_string = choc::json::toString (args);
-        //juce::Logger::outputDebugString (choc_json_string);
+        //juce::Logger::outputDebugString ("note_on: " + choc_json_string);
 
         const auto json = juce::JSON::parse (choc_json_string);
 
@@ -130,7 +130,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
         if (! safe_this->midiKeyboardStatePtr.expired())
         {
-            safe_this->midiKeyboardStatePtr.lock()->noteOn ((int) midi_channel, (int) midi_note_number, 1.0f);
+            safe_this->midiKeyboardStatePtr.lock()->noteOn ((int) midi_channel, (int) midi_note_number, 0.6f);
         }
 
         return choc::value::Value (0);
@@ -146,7 +146,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         }
 
         const auto choc_json_string = choc::json::toString (args);
-        //juce::Logger::outputDebugString (choc_json_string);
+        //juce::Logger::outputDebugString ("note_off: " + choc_json_string);
 
         const auto json = juce::JSON::parse (choc_json_string);
 

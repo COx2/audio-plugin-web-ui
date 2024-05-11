@@ -41,8 +41,8 @@ target_sources(${BaseTargetName}
         Source/PluginProcessor.h
         Source/PluginEditor.cpp
         Source/PluginEditor.h
-        Source/ChocSynthesizer.cpp
-        Source/ChocSynthesizer.h
+        Source/JuceDemoSynthesizer.cpp
+        Source/JuceDemoSynthesizer.h
         )
 
 target_compile_definitions(${BaseTargetName}

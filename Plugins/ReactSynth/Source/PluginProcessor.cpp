@@ -20,7 +20,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     audioFFIO_Left.reset (4800, 0.0f);
     audioFFIO_Right.reset (4800, 0.0f);
 
-    chocSynthesizer = std::make_unique<ChocSynthesizer>();
+    juceDemoSynthesizer = std::make_unique<JuceDemoSynthesizer>();
+    juceDemoSynthesizer->initialise();
 
     midiKeyboardState = std::make_shared<juce::MidiKeyboardState>();
 }
@@ -101,8 +102,9 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // initialisation that you need..
     juce::ignoreUnused (sampleRate, samplesPerBlock);
 
-    chocSynthesizer->setCurrentPlaybackSampleRate(sampleRate);
-    chocSynthesizer->setOscillatorType();
+    juceDemoSynthesizer->setCurrentPlaybackSampleRate (sampleRate);
+
+    midiKeyboardState->reset();
 
     auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
     previousGain = *gainParameter * phase;
@@ -171,7 +173,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // the mouse-clicking on the on-screen keyboard.
     midiKeyboardState->processNextMidiBuffer (midiMessages, 0, buffer.getNumSamples(), true);
 
-    chocSynthesizer->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    juceDemoSynthesizer->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     if (juce::approximatelyEqual (currentGain, previousGain))
     {
