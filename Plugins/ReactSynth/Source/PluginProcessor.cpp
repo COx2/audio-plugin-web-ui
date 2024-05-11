@@ -20,6 +20,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     audioFFIO_Left.reset (4800, 0.0f);
     audioFFIO_Right.reset (4800, 0.0f);
 
+    chocSynthesizer = std::make_unique<ChocSynthesizer>();
+
     midiKeyboardState = std::make_shared<juce::MidiKeyboardState>();
 }
 
@@ -98,18 +100,15 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     juce::ignoreUnused (sampleRate, samplesPerBlock);
-    
+
+    chocSynthesizer->setCurrentPlaybackSampleRate(sampleRate);
+    chocSynthesizer->setOscillatorType();
+
     auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
     previousGain = *gainParameter * phase;
 
     audioFFIO_Left.reset (4800, 0.0f);
     audioFFIO_Right.reset (4800, 0.0f);
-
-    sineOsc_Left.setFrequency (880, sampleRate);
-    sineOsc_Left.resetPhase();
-
-    sineOsc_Right.setFrequency (1320, sampleRate);
-    sineOsc_Right.resetPhase();
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -172,19 +171,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // the mouse-clicking on the on-screen keyboard.
     midiKeyboardState->processNextMidiBuffer (midiMessages, 0, buffer.getNumSamples(), true);
 
-#if 0
-    for (int sample_idx = 0; sample_idx < buffer.getNumSamples(); sample_idx++)
-    {
-        if (buffer.getNumChannels() > 0)
-        {
-            buffer.getWritePointer (0)[sample_idx] = sineOsc_Left.getSample();
-        }
-        if (buffer.getNumChannels() > 1)
-        {
-            buffer.getWritePointer (1)[sample_idx] = sineOsc_Right.getSample();
-        }
-    }
-#endif
+    chocSynthesizer->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     if (juce::approximatelyEqual (currentGain, previousGain))
     {

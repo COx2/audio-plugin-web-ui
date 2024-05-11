@@ -2,7 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <containers/choc_SingleReaderSingleWriterFIFO.h>
-#include <audio/choc_Oscillators.h>
+#include "ChocSynthesizer.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -67,10 +67,8 @@ private:
 
     choc::fifo::SingleReaderSingleWriterFIFO<float> audioFFIO_Left;
     choc::fifo::SingleReaderSingleWriterFIFO<float> audioFFIO_Right;
-    
-    choc::oscillator::Sine<float> sineOsc_Left;
-    choc::oscillator::Sine<float> sineOsc_Right;
 
+    std::unique_ptr<ChocSynthesizer> chocSynthesizer;
     std::shared_ptr<juce::MidiKeyboardState> midiKeyboardState;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)

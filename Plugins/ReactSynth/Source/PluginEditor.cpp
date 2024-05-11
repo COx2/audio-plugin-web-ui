@@ -180,7 +180,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     chocWebView->bind ("onMidiNoteOff", web_view_callback_on_midi_note_off);
     chocWebView->bind ("onInitialUpdate", web_view_callback_on_initial_update);
 
-#if JUCE_DEBUG
+#define WEB_VIEW_FROM_SERVER 0
+#if WEB_VIEW_FROM_SERVER
     chocWebView->navigate ("http://localhost:5173");
 #endif
 
@@ -196,7 +197,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     setSize (1200, 600);
     setResizable(true, true);
 
-    startTimerHz (30);
+    //startTimerHz (30);
 
     midiKeyboardStatePtr = processorRef.getMidiKeyboardState();
 }
