@@ -28,43 +28,9 @@ public:
     {
     }
 
-    void setFrequencyAndSamplerate(float frequency, float samplerate)
+    Waveform getWaveform() const
     {
-        sineOscillator.setFrequency(frequency, samplerate);
-        sineOscillator.resetPhase();
-
-        sawOscillator.setFrequency(frequency, samplerate);
-        sawOscillator.resetPhase();
-
-        squareOscillator.setFrequency(frequency, samplerate);
-        squareOscillator.resetPhase();
-
-        triangleOscillator.setFrequency(frequency, samplerate);
-        triangleOscillator.resetPhase();
-    }
-
-    float getNextSample()
-    {
-        switch (waveform)
-        {
-        case ChocSynthesizerSound::Waveform::kSine:
-            return sineOscillator.getSample();
-            break;
-        case ChocSynthesizerSound::Waveform::kSquare:
-            return squareOscillator.getSample();
-            break;
-        case ChocSynthesizerSound::Waveform::kSaw:
-            return sawOscillator.getSample();
-            break;
-        case ChocSynthesizerSound::Waveform::kTriangle:
-            return triangleOscillator.getSample();
-            break;
-        default:
-            break;
-        }
-
-        // Fallback
-        return sineOscillator.getSample();
+        return waveform;
     }
 
     //==============================================================================
@@ -95,11 +61,6 @@ private:
     Waveform waveform;
     juce::ADSR::Parameters paramsAmpEnvelope;
 
-    choc::oscillator::Sine<float> sineOscillator;
-    choc::oscillator::Saw<float> sawOscillator;
-    choc::oscillator::Triangle<float> triangleOscillator;
-    choc::oscillator::Square<float> squareOscillator;
-
     JUCE_LEAK_DETECTOR(ChocSynthesizerSound)
 };
 
@@ -110,6 +71,7 @@ class ChocSynthesizerVoice
 public:
     //==============================================================================
     ChocSynthesizerVoice()
+        : gainVelocity(1.0f)
     {}
 
     ~ChocSynthesizerVoice() override
@@ -135,9 +97,19 @@ private:
             const double frequency_of_A4 = 440.0;
             const double frequency_of_note = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber, frequency_of_A4);
             const double sample_rate = getSampleRate();
-            gain_velocity = velocity;
+            gainVelocity = velocity;
 
-            sound->setFrequencyAndSamplerate(frequency_of_note, sample_rate);
+            sineOscillator.setFrequency (frequency_of_note, sample_rate);
+            sineOscillator.resetPhase();
+
+            sawOscillator.setFrequency (frequency_of_note, sample_rate);
+            sawOscillator.resetPhase();
+
+            squareOscillator.setFrequency (frequency_of_note, sample_rate);
+            squareOscillator.resetPhase();
+
+            triangleOscillator.setFrequency (frequency_of_note, sample_rate);
+            triangleOscillator.resetPhase();
 
             ampEnvelope.setSampleRate(sample_rate);
             ampEnvelope.setParameters(sound->getEnvelopeParameters());
@@ -166,19 +138,43 @@ private:
     void controllerMoved(int /*controllerNumber*/, int /*newValue*/) override {}
 
     //==============================================================================
+    float getNextSample(ChocSynthesizerSound::Waveform waveform)
+    {
+        switch (waveform)
+        {
+            case ChocSynthesizerSound::Waveform::kSine:
+                return sineOscillator.getSample();
+                break;
+            case ChocSynthesizerSound::Waveform::kSquare:
+                return squareOscillator.getSample();
+                break;
+            case ChocSynthesizerSound::Waveform::kSaw:
+                return sawOscillator.getSample();
+                break;
+            case ChocSynthesizerSound::Waveform::kTriangle:
+                return triangleOscillator.getSample();
+                break;
+            default:
+                break;
+        }
+
+        // Fallback
+        return sineOscillator.getSample();
+    }
+    
     void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override
     {
         if (auto* playingSound = dynamic_cast<ChocSynthesizerSound*> (getCurrentlyPlayingSound().get()))
         {
             for (int sample_idx = 0; sample_idx < outputBuffer.getNumSamples(); sample_idx++)
             {
-                auto value_to_out = playingSound->getNextSample();
+                auto value_to_out = getNextSample (playingSound->getWaveform());
                 auto envelopeValue = ampEnvelope.getNextSample();
-                value_to_out = value_to_out * envelopeValue * gain_velocity;
+                value_to_out = value_to_out * envelopeValue * gainVelocity;
 
                 for(int ch_idx = 0; ch_idx < outputBuffer.getNumChannels(); ch_idx++)
                 {
-                    outputBuffer.setSample (ch_idx, sample_idx, value_to_out);
+                    outputBuffer.addSample (ch_idx, sample_idx, value_to_out);
                 }
             }
         }
@@ -187,7 +183,12 @@ private:
 
     //==============================================================================
     juce::ADSR ampEnvelope;
-    float gain_velocity;
+    float gainVelocity;
+
+    choc::oscillator::Sine<float> sineOscillator;
+    choc::oscillator::Saw<float> sawOscillator;
+    choc::oscillator::Triangle<float> triangleOscillator;
+    choc::oscillator::Square<float> squareOscillator;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChocSynthesizerVoice)
 };
@@ -198,6 +199,7 @@ private:
 //==============================================================================
 ChocSynthesizer::ChocSynthesizer()
 {
+    this->setNoteStealingEnabled (true);
 }
 
 ChocSynthesizer::~ChocSynthesizer()
