@@ -7,7 +7,7 @@ To introduce a method for creating the GUI of audio plugins using web technologi
 
 ## Examples
 
-In this repository, you can build two audio plugins named WebGain and DenoGain.
+In this repository, you can build four audio plugins named WebGain, DenoGain, WebVisualizer and ReactSynth.
 
 ### WebGain
 
@@ -26,6 +26,12 @@ It utilizes a technology stack commonly used in web frontend development, includ
 This is an experimental implementation for passing the audio buffer receiverd from the plugin's audio callback to WebView and audio visualization using p5.js.
 
 ![WebVisualizer](img/webvisualizer.gif)
+
+### ReactSynth
+
+This is an experimental implementation of controlling instrument plug-ins from a React component.
+
+![ReactSynth](img/reactsynth.gif)
 
 ## How to build
 
