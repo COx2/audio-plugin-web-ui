@@ -14,10 +14,14 @@ const GainKnob = () => {
     useEffect(() => {
         (async() => {
             const parameterValue = await getParameterValue({parameterName: "gain"})
-            // @ts-ignore
-            const mapped_value = globalThis.mapRange(parameterValue, 0.0, 1.0, 0, 100)
-            // console.log('gainSlider: ', mapped_value);
-            setValue(mapped_value);
+            if (isNaN(parameterValue)) {
+                setValue(0);
+            }
+            else{
+                // @ts-ignore
+                const mapped_value = globalThis.mapRange(parameterValue, 0.0, 1.0, 0, 100)
+                setValue(mapped_value);
+            }
           })()
         return () => {
         };
@@ -32,17 +36,21 @@ const GainKnob = () => {
         const parameterName = jsonData.parameterName;
         const parameterValue = jsonData.parameterValue;
 
-        // Update the HTML label with the message
+        // Update the gain knob value state.
         if(parameterName === "gain")
         {
-            // @ts-ignore
-            const mapped_value = globalThis.mapRange(parameterValue, 0.0, 1.0, 0, 100)
-            // console.log('gainSlider: ', mapped_value);
-            setValue(mapped_value);
+            if (isNaN(parameterValue)) {
+                setValue(0);
+            }
+            else{
+                // @ts-ignore
+                const mapped_value = globalThis.mapRange(parameterValue, 0.0, 1.0, 0, 100)
+                setValue(mapped_value);
+            }
         }
     }
 
-    console.log("GainKnob: " + value);
+    // console.log("GainKnob: " + value);
 
     return (
         <Knob 

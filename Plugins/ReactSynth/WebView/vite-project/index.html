@@ -13,27 +13,7 @@
           const mappedValue = normalizedValue * (toMax - toMin) + toMin;
           return mappedValue;
       }
-      //window.onParameterChanged = null;
-      window.gainParameterValue = 0.0;
-      window.onParameterChanged = function(jsonData) {
-        // This is the function that will be called from C++
-        // console.log('JSON from C++: ', jsonData);
-
-        // Access the 'type' property in the JSON data
-        const parameterName = jsonData.parameterName;
-        const parameterValue = jsonData.parameterValue;
-
-        // Update the HTML label with the message
-        if(parameterName === "gain")
-        {
-            // @ts-ignore
-            const mapped_value = window.mapRange(parameterValue, 0.0, 1.0, 0, 100)
-            console.log('gainSlider: ', mapped_value);
-            
-            window.gainParameterValue = mapped_value;
-        }
-      }
-      console.log(window);
+      window.onParameterChanged = null;
     </script>
   </head>
   <body>

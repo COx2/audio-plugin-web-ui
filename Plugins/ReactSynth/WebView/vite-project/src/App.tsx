@@ -1,12 +1,8 @@
-import { useState } from 'react'
 import './App.css'
 import MidiKeyboard from './components/MidiKeyboard.tsx'
 import GainKnob from './components/GainKnob.tsx'
 
 function App() {
-  // @ts-ignore
-  const [count, setCount] = useState(0)
-
   return (
     <>
       <div style={{display: 'flex', flexDirection: 'column', justifyContent:'center', alignItems:'center'}}>
