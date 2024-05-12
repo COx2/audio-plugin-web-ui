@@ -196,6 +196,30 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         return choc::value::Value (0);
     };
 
+    auto web_view_callback_get_parameter_value =
+        [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
+        -> choc::value::Value
+    {
+        if (safe_this.getComponent() == nullptr)
+        {
+            return choc::value::Value (-1);
+        }
+
+        const auto choc_json_string = choc::json::toString (args);
+        //juce::Logger::outputDebugString(choc_json_string);
+
+        const auto juce_json = juce::JSON::parse (choc_json_string);
+        if (juce_json[0]["parameterName"] == "gain")
+        {
+
+        }
+
+        // Should fix range convert.
+        const auto value_normalized = safe_this->valueTreeState.getParameter ("gain")->getNormalisableRange().convertFrom0to1 (safe_this->valueTreeState.getParameter ("gain")->getValue());
+
+        return choc::value::Value (value_normalized);
+    };
+
     auto web_view_callback_on_initial_update =
         [safe_this = juce::Component::SafePointer (this)] (const choc::value::ValueView& args)
         -> choc::value::Value
@@ -214,37 +238,38 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     chocWebView->bind ("onMidiNoteOn", web_view_callback_on_midi_note_on);
     chocWebView->bind ("onMidiNoteOff", web_view_callback_on_midi_note_off);
     chocWebView->bind ("onSliderChanged", web_view_callback_on_sliider_changed);
+    chocWebView->bind ("getParameterValue", web_view_callback_get_parameter_value);
     chocWebView->bind ("onInitialUpdate", web_view_callback_on_initial_update);
 
-    const auto script = R"(
-    // Utility functions.
-    function mapRange(value, fromMin, fromMax, toMin, toMax) {
-        const clampedValue = Math.min(Math.max(value, fromMin), fromMax);
-        const normalizedValue = (clampedValue - fromMin) / (fromMax - fromMin);
-        const mappedValue = normalizedValue * (toMax - toMin) + toMin;
-        return mappedValue;
-    }
+    //const auto script = R"(
+    //// Utility functions.
+    //function mapRange(value, fromMin, fromMax, toMin, toMax) {
+    //    const clampedValue = Math.min(Math.max(value, fromMin), fromMax);
+    //    const normalizedValue = (clampedValue - fromMin) / (fromMax - fromMin);
+    //    const mappedValue = normalizedValue * (toMax - toMin) + toMin;
+    //    return mappedValue;
+    //}
 
-    // Event callback from JUCE.
-    function onParameterChanged(jsonData) {
-        // This is the function that will be called from C++
-        console.log('JSON from C++: onParameterChanged - ', jsonData);
+    //// Event callback from JUCE.
+    //function onParameterChanged(jsonData) {
+    //    // This is the function that will be called from C++
+    //    console.log('JSON from C++: onParameterChanged - ', jsonData);
 
-        // Access the 'type' property in the JSON data
-        const parameterName = jsonData.parameterName;
+    //    // Access the 'type' property in the JSON data
+    //    const parameterName = jsonData.parameterName;
 
-        // Update the HTML label with the message
-        if(parameterName === "gain")
-        {
-            console.log('gainSlider: ');
-        }
-    }
+    //    // Update the HTML label with the message
+    //    if(parameterName === "gain")
+    //    {
+    //        console.log('gainSlider: ');
+    //    }
+    //}
 
-    // Invoke C++ callback for requesting initial update.
-    onInitialUpdate();
-    )";
+    //// Invoke C++ callback for requesting initial update.
+    //onInitialUpdate();
+    //)";
 
-    chocWebView->addInitScript (script);
+    //chocWebView->addInitScript (script);
 
 #if WEB_VIEW_FROM_SERVER
     chocWebView->navigate ("http://localhost:5173");

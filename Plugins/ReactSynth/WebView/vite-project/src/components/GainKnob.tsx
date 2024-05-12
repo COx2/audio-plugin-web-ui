@@ -9,7 +9,20 @@ const GainKnob = () => {
     const [value, setValue] = useState(0)
 
     const onSliderChanged = useWindowFunction('onSliderChanged');
-    
+    const getParameterValue = useWindowFunction('getParameterValue');
+
+    useEffect(() => {
+        (async() => {
+            const parameterValue = await getParameterValue({parameterName: "gain"})
+            // @ts-ignore
+            const mapped_value = globalThis.mapRange(parameterValue, 0.0, 1.0, 0, 100)
+            console.log('gainSlider: ', mapped_value);
+            setValue(mapped_value);
+          })()
+        return () => {
+        };
+      }, [value, setValue]);
+
     // @ts-ignore
     globalThis.onParameterChanged = function(jsonData) {
         // This is the function that will be called from C++
@@ -61,7 +74,8 @@ const GainKnob = () => {
             />
             <Value 
             marginBottom={40} 
-            className="value" 
+            className="value"
+            value={value}
             />
         </Knob>
     );
