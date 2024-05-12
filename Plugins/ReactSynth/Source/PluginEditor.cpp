@@ -284,7 +284,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1200, 600);
+    setSize (960, 480);
     setResizable(true, true);
 
     //startTimerHz (30);

@@ -5,6 +5,7 @@ import GainKnob from './components/GainKnob.tsx'
 function App() {
   return (
     <>
+      <h1>ReactSynth</h1>
       <div style={{display: 'flex', flexDirection: 'column', justifyContent:'center', alignItems:'center'}}>
           <div style={{marginTop: '-10px'}}><GainKnob/></div>
           <div style={{marginTop: '-10px'}}>GAIN</div>

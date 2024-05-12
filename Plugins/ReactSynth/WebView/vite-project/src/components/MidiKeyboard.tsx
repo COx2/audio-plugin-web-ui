@@ -29,7 +29,7 @@ const MidiKeyboard = () => {
             // Stop playing a given note - see notes below
             onMidiNoteOff(1, midiNumber)
         }}
-        width={1000}
+        width={800}
         keyboardShortcuts={keyboardShortcuts}
         />
     );
