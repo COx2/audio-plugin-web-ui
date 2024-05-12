@@ -16,7 +16,7 @@ const GainKnob = () => {
             const parameterValue = await getParameterValue({parameterName: "gain"})
             // @ts-ignore
             const mapped_value = globalThis.mapRange(parameterValue, 0.0, 1.0, 0, 100)
-            console.log('gainSlider: ', mapped_value);
+            // console.log('gainSlider: ', mapped_value);
             setValue(mapped_value);
           })()
         return () => {
@@ -37,11 +37,12 @@ const GainKnob = () => {
         {
             // @ts-ignore
             const mapped_value = globalThis.mapRange(parameterValue, 0.0, 1.0, 0, 100)
-            console.log('gainSlider: ', mapped_value);
-            
+            // console.log('gainSlider: ', mapped_value);
             setValue(mapped_value);
         }
     }
+
+    console.log("GainKnob: " + value);
 
     return (
         <Knob 
@@ -64,18 +65,21 @@ const GainKnob = () => {
             <Arc 
             arcWidth={5}
             color="#FC5A96"
+            background="#180094"
             radius={47.5} 
+            percentage={value / 100} // Refer to: https://github.com/eskimoblood/rc-knob/issues/20
             />
             <Pointer 
             width={5}
             radius={40}
             type="circle"
             color="000000"
+            percentage={value / 100} // Refer to: https://github.com/eskimoblood/rc-knob/issues/20
             />
             <Value 
             marginBottom={40} 
             className="value"
-            value={value}
+            value={value} // Refer to: https://github.com/eskimoblood/rc-knob/issues/20
             />
         </Knob>
     );
