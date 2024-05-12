@@ -38,6 +38,3 @@ export async function buildPlugins() {
         await $`cmake --build --preset ninja-release`;
     }
 }
-
-//============================================
-await buildPlugins();
