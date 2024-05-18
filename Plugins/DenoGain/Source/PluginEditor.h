@@ -41,13 +41,7 @@ private:
     std::unique_ptr<ButtonAttachment> invertAttachment;
     
     std::unique_ptr<choc::ui::WebView> chocWebView;
-#if JUCE_WINDOWS
-    std::unique_ptr<juce::HWNDComponent> juceHwndView;
-#elif JUCE_MAC
-    std::unique_ptr<juce::NSViewComponent> juceNsView;
-#elif JUCE_LINUX
-    std::unique_ptr<juce::XEmbedComponent> juceXEmbedView;
-#endif
+    std::unique_ptr<juce::Component> juceWebViewHolder;
     
     juce::MemoryInputStream misWebViewBundle;
     std::unique_ptr<juce::ZipFile> zipWebViewBundle;

@@ -2,6 +2,11 @@
 #include "PluginEditor.h"
 #include "WebViewBundleData.h"
 
+
+#ifndef WEB_VIEW_FROM_SERVER
+    #define WEB_VIEW_FROM_SERVER 0
+#endif
+
 //==============================================================================
 namespace
 {
@@ -50,46 +55,16 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     addAndMakeVisible (invertButton);
     invertAttachment.reset (new ButtonAttachment (valueTreeState, "invertPhase", invertButton));
 
+    // Create webview.
     choc::ui::WebView::Options options;
+
+#if JUCE_DEBUG
+    options.enableDebugMode = true;
+#else
     options.enableDebugMode = false;
-
-    // auto asset_directory = juce::File("/path/to/asset");
-    
-    // options.fetchResource = [this, assetDirectory = asset_directory](const choc::ui::WebView::Options::Path& path)
-    // -> std::optional<choc::ui::WebView::Options::Resource> {
-    //   auto relative_path = "." + (path == "/" ? "/index.html" : path);
-    //   auto file_to_read = assetDirectory.getChildFile(relative_path);
-
-    //   juce::Logger::outputDebugString(file_to_read.getFullPathName());
-
-    //   juce::MemoryBlock memory_block;
-    //   if (!file_to_read.existsAsFile() || !file_to_read.loadFileAsData(memory_block))
-    //     return {};
-
-    //   return choc::ui::WebView::Options::Resource {
-    //       std::vector<uint8_t>(memory_block.begin(), memory_block.end()),
-    //       getMimeType(file_to_read.getFileExtension().toStdString())
-    //   };
-    // };
-
-    chocWebView = std::make_unique<choc::ui::WebView>(options);
-#if JUCE_WINDOWS
-    juceHwndView = std::make_unique<juce::HWNDComponent>();
-    juceHwndView->setHWND(chocWebView->getViewHandle());
-    addAndMakeVisible(juceHwndView.get());
-#elif JUCE_MAC
-    juceNsView = std::make_unique<juce::NSViewComponent>();
-    juceNsView->setView(chocWebView->getViewHandle());
-    addAndMakeVisible(juceNsView.get());
-#elif JUCE_LINUX
-    juceXEmbedView = std::make_unique<juce::XEmbedComponent>(chocWebView->getViewHandle());
-    addAndMakeVisible(juceXEmbedView.get());
 #endif
 
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (800, 400);
-    setResizable(true, true);
+    chocWebView = std::make_unique<choc::ui::WebView> (options);
 
     auto web_view_callback_on_toggle_changed =
         [safe_this = juce::Component::SafePointer(this)](const choc::value::ValueView& args)
@@ -157,17 +132,29 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     chocWebView->bind("onSliderChanged", web_view_callback_on_sliider_changed);
     chocWebView->bind("onInitialUpdate", web_view_callback_on_initial_update);
 
-    const auto html = juce::String::createStringFromData(WebView::view_html, WebView::view_htmlSize);
-    chocWebView->setHTML(html.toStdString());
-    
+#if WEB_VIEW_FROM_SERVER
+    chocWebView->navigate ("http://localhost:5173");
+#else
+    const auto html = juce::String::createStringFromData (WebView::view_html, WebView::view_htmlSize);
+    chocWebView->setHTML (html.toStdString());
+#endif
+
+    juceWebViewHolder = createJUCEWebViewHolder (*chocWebView.get());
+    addAndMakeVisible (juceWebViewHolder.get());
+
     valueTreeState.addParameterListener("gain", this);
     valueTreeState.addParameterListener("invertPhase", this);
+
+    // Make sure that before the constructor has finished, you've set the
+    // editor's size to whatever you need it to be.
+    setSize (800, 400);
+    setResizable (true, true);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
-  valueTreeState.removeParameterListener("gain", this);
-  valueTreeState.removeParameterListener("invertPhase", this);
+    valueTreeState.removeParameterListener("gain", this);
+    valueTreeState.removeParameterListener("invertPhase", this);
 }
 
 //==============================================================================
@@ -188,13 +175,7 @@ void AudioPluginAudioProcessorEditor::resized()
 
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-#if JUCE_WINDOWS
-    juceHwndView->setBounds(getLocalBounds());
-#elif JUCE_MAC
-    juceNsView->setBounds(getLocalBounds());
-#elif JUCE_LINUX
-    juceXEmbedView->setBounds(getLocalBounds());
-#endif
+    juceWebViewHolder->setBounds (getLocalBounds());
 }
 
 void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& parameterID, float newValue)

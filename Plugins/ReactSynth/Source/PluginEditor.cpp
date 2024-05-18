@@ -2,7 +2,9 @@
 #include "PluginEditor.h"
 #include "WebViewBundleData.h"
 
-#define WEB_VIEW_FROM_SERVER 0
+#ifndef WEB_VIEW_FROM_SERVER
+    #define WEB_VIEW_FROM_SERVER 0
+#endif
 
 //==============================================================================
 namespace

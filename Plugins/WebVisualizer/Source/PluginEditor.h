@@ -41,16 +41,10 @@ private:
  
     juce::ToggleButton invertButton;
     std::unique_ptr<ButtonAttachment> invertAttachment;
-    
-    std::unique_ptr<choc::ui::WebView> chocWebView;
-#if JUCE_WINDOWS
-    std::unique_ptr<juce::HWNDComponent> juceHwndView;
-#elif JUCE_MAC
-    std::unique_ptr<juce::NSViewComponent> juceNsView;
-#elif JUCE_LINUX
-    std::unique_ptr<juce::XEmbedComponent> juceXEmbedView;
-#endif
 
+    std::unique_ptr<choc::ui::WebView> chocWebView;
+    std::unique_ptr<juce::Component> juceWebViewHolder;
+    
     choc::value::Value cachedValueForView;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
