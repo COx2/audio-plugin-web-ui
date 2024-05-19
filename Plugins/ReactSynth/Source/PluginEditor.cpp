@@ -280,21 +280,34 @@ void AudioPluginAudioProcessorEditor::resized()
 
 void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& parameterID, float newValue)
 {
+    juce::String javascript = "";
+
     if (parameterID == "gain")
     {
         juce::DynamicObject::Ptr json = new juce::DynamicObject();
         json->setProperty("parameterName", "gain");
         json->setProperty("parameterValue", newValue);
         const auto js_args_json = juce::JSON::toString(json.get());
-        juce::String javascript = juce::String("onParameterChanged(") + js_args_json + juce::String(")");
+        javascript = juce::String ("onParameterChanged(") + js_args_json + juce::String (")");
+    }
+    else if (parameterID == "invertPhase")
+    {
+        juce::DynamicObject::Ptr json = new juce::DynamicObject();
+        json->setProperty("parameterName", "invertPhase");
+        json->setProperty("parameterValue", newValue);
+        const auto js_args_json = juce::JSON::toString(json.get());
+        javascript = juce::String ("onParameterChanged(") + js_args_json + juce::String (")");
+    }
 
+    if (javascript.isNotEmpty())
+    {
         if (juce::MessageManager::getInstance()->isThisTheMessageThread())
         {
             const bool result = chocWebView->evaluateJavascript (javascript.toStdString());
             if (! result)
             {
                 juce::Logger::outputDebugString ("Failed: " + javascript);
-            } 
+            }
         }
         else
         {
@@ -307,22 +320,12 @@ void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& param
                     }
 
                     const bool result = safe_this->chocWebView->evaluateJavascript (javascript.toStdString());
-                    if (!result)
+                    if (! result)
                     {
                         juce::Logger::outputDebugString ("Failed: " + javascript);
-                    } 
+                    }
                 });
         }
-    }
-    else if (parameterID == "invertPhase")
-    {
-        juce::DynamicObject::Ptr json = new juce::DynamicObject();
-        json->setProperty("parameterName", "invertPhase");
-        json->setProperty("parameterValue", newValue);
-        const auto js_args_json = juce::JSON::toString(json.get());
-        juce::String javascript = juce::String("onParameterChanged(") + js_args_json + juce::String(")");
-
-        this->chocWebView->evaluateJavascript(javascript.toStdString());
     }
 }
 
