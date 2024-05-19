@@ -4,7 +4,6 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <juce_data_structures/juce_data_structures.h>
 #include <gui/choc_WebView.h>
-#include <containers/choc_ZipFile.h>
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final
