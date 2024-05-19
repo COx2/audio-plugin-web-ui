@@ -6,8 +6,8 @@ Please refer to the official website for instructions on how to install Deno.
 https://deno.com/
 */
 
-import { buildWebViewBundles } from "./build-webview-bundles.ts"
-import { buildPlugins } from "./build-plugins.ts";
+import { buildWebViewBundles } from "./details/build-webview-bundles.ts"
+import { buildPlugins } from "./details/build-plugins.ts";
 
 //============================================
 await buildWebViewBundles();
