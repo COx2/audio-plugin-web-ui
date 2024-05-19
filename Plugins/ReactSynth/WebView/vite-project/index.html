@@ -6,14 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React + TS</title>
     <script>
+      // Assign a delegater function in React useEffect.
+      window.updateGainParameterValueFromNative = null;
+
       // Utility functions.
-      window.mapRange = function(value, fromMin, fromMax, toMin, toMax) {
+      window.mapRange = (value, fromMin, fromMax, toMin, toMax) => {
           const clampedValue = Math.min(Math.max(value, fromMin), fromMax);
           const normalizedValue = (clampedValue - fromMin) / (fromMax - fromMin);
           const mappedValue = normalizedValue * (toMax - toMin) + toMin;
           return mappedValue;
+        }
+
+      // Event callback from C++
+      window.onParameterChanged = (jsonData) => {
+        // This is the function that will be called from C++
+        // console.log('JSON from C++: ', jsonData);
+
+        // Access the 'type' property in the JSON data
+        const parameterName = jsonData.parameterName;
+        
+        // Update the HTML label with the message
+        if(parameterName === "gain")
+        {
+            const mapped_value = mapRange(jsonData.parameterValue, 0.0, 1.0, 0, 100)
+            
+            //console.log('gainSlider: ', mapped_value);
+            
+            updateGainParameterValueFromNative(mapped_value);
+        }
       }
-      window.onParameterChanged = null;
     </script>
   </head>
   <body>
