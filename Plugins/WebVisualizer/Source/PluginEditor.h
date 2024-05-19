@@ -3,6 +3,15 @@
 #include "PluginProcessor.h"
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <juce_data_structures/juce_data_structures.h>
+
+#if JUCE_LINUX
+// Include it here because of needed to access the GTK API from CHOC.
+#include <gtk/gtk.h>
+#include <gtk/gtkx.h>
+#include <glib-unix.h>
+#include <webkit2/webkit2.h>
+#endif
+
 #include <gui/choc_WebView.h>
 
 //==============================================================================
