@@ -12,12 +12,14 @@ namespace
     std::string getMimeType(std::string const& ext)
     {
         static std::unordered_map<std::string, std::string> mimeTypes{
-          { ".html",   "text/html" },
-          { ".js",     "application/javascript" },
-          { ".css",    "text/css" },
-          { ".json",   "application/json"},
-          { ".svg", "image/svg+xml"},
-          { ".svgz", "image/svg+xml"},
+            { ".html",  "text/html" },
+            { ".js",    "application/javascript" },
+            { ".css",   "text/css" },
+            { ".json",  "application/json"},
+            { ".svg",   "image/svg+xml"},
+            { ".svgz",  "image/svg+xml"},
+            { ".wasm",  "application/wasm" },
+            { ".data",  "application/octet-stream" },
         };
 
         if (mimeTypes.count(ext) > 0)
@@ -67,7 +69,9 @@ namespace
 
         zipped_reader->read (memory_block.begin(), uncompressed_size);
 
-        return choc::ui::WebView::Options::Resource (memory_block.toString().toStdString(), mime_type);
+        const auto&& str_view = std::string_view (memory_block.begin(), memory_block.getSize());
+
+        return choc::ui::WebView::Options::Resource (str_view, mime_type);
     }
 }
 
@@ -243,7 +247,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (960, 480);
+    setSize (960, 960);
     setResizable(true, true);
 
     //startTimerHz (30);
