@@ -1,33 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Fragment, useState, useCallback, useEffect } from 'react'
+import { Unity, useUnityContext } from "react-unity-webgl";
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [userName, setUserName] = useState();
+  const [score, setScore] = useState();
+
+  const {  unityProvider, isLoaded, loadingProgression, sendMessage, addEventListener, removeEventListener } =
+    useUnityContext({
+      loaderUrl: "unity/builds.loader.js",
+      dataUrl: "unity/builds.data",
+      frameworkUrl: "unity/builds.framework.js",
+      codeUrl: "unity/builds.wasm",
+    });
+
+  const handleGameOver = useCallback((userName: any, score: any) => {
+    setIsGameOver(true);
+    setUserName(userName);
+    setScore(score);
+  }, []);
+
+  useEffect(() => {
+    addEventListener("GameOver", handleGameOver);
+    return () => {
+      removeEventListener("GameOver", handleGameOver);
+    };
+  }, [addEventListener, removeEventListener, handleGameOver]);
+
+  function handleClickCommunicate() {
+    sendMessage("GameController", "Communicate", 100);
+  }
+
+  // We'll round the loading progression to a whole number to represent the
+  // percentage of the Unity Application that has loaded.
+  const loadingPercentage = Math.round(loadingProgression * 100);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Fragment>
+        <div className="container">
+          {isLoaded === false && (
+            // We'll conditionally render the loading overlay if the Unity
+            // Application is not loaded.
+            <div className="loading-overlay">
+              <p>Loading... ({loadingPercentage}%)</p>
+            </div>
+          )}
+          <Unity className="unity" unityProvider={unityProvider} />
+        </div>
+        <div>
+          <button onClick={handleClickCommunicate}>Communicate with Unity</button>
+          {isGameOver === true && (
+            <p>{`Game Over ${userName}! You've scored ${score} points.`}</p>
+          )}
+        </div>
+      </Fragment>
     </>
   )
 }
