@@ -14,7 +14,7 @@ juce_add_plugin("${BaseTargetName}"
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     COPY_PLUGIN_AFTER_BUILD FALSE
     PLUGIN_MANUFACTURER_CODE Cox2
-    PLUGIN_CODE Reas
+    PLUGIN_CODE Unis
     FORMATS Standalone VST3 AU #AUv3 #LV2
     LV2URI "urn:cox2:UnitySynth"
     PRODUCT_NAME "UnitySynth")
