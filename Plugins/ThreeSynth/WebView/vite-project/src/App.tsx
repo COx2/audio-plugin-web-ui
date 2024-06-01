@@ -1,33 +1,35 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei'
+import { Color } from 'three';
+import { Perf } from 'r3f-perf'
+import { Cube } from './components/Cube';
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const bgColor = new Color("darkgray");
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="three-box">
+        <Canvas
+          camera={{
+            fov: 45,
+            near: 0.1,
+            far: 1000,
+            position: [0, 0, 5]
+          }}
+        >
+          <Perf/>
+          <color
+            attach="background"
+            args={[bgColor.r, bgColor.g, bgColor.b]}
+          />
+          <Cube />
+          <OrbitControls />
+          <ambientLight args={[0xffffff]} intensity={0.2} />
+          <directionalLight position={[0.3, 0.4, 1]} intensity={0.8} />
+        </Canvas>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
