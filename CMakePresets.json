@@ -62,7 +62,9 @@
                 "WebVisualizer_All",
                 "WebVisualizer_CLAP",
                 "ReactSynth_All",
-                "ReactSynth_CLAP"
+                "ReactSynth_CLAP",
+                "UnitySynth_All",
+                "UnitySynth_CLAP"
             ]
         },
         {
