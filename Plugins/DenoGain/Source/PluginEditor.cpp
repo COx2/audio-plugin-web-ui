@@ -63,7 +63,9 @@ namespace
 
         zipped_reader->read (memory_block.begin(), uncompressed_size);
 
-        return choc::ui::WebView::Options::Resource (memory_block.toString().toStdString(), mime_type);
+        const auto&& str_view = std::string_view (memory_block.begin(), memory_block.getSize());
+
+        return choc::ui::WebView::Options::Resource (str_view, mime_type);
     }
 }
 
