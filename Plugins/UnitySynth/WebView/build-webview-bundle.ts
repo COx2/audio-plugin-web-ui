@@ -19,6 +19,7 @@ Deno.chdir(__file_directory + "vite-project");
 
 console.log("Deno.cwd(): " + Deno.cwd());
 
+await $`npm install`;
 await $`npm run build`;
 
 Deno.chdir(__file_directory + "vite-project/dist");
