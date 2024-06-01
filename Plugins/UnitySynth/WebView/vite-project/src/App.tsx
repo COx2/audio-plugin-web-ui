@@ -9,10 +9,10 @@ function App() {
 
   const {  unityProvider, isLoaded, loadingProgression, sendMessage, addEventListener, removeEventListener } =
     useUnityContext({
-      loaderUrl: "unity/builds.loader.js",
-      dataUrl: "unity/builds.data",
-      frameworkUrl: "unity/builds.framework.js",
-      codeUrl: "unity/builds.wasm",
+      loaderUrl: "unity-binary/builds.loader.js",
+      dataUrl: "unity-binary/builds.data",
+      frameworkUrl: "unity-binary/builds.framework.js",
+      codeUrl: "unity-binary/builds.wasm",
     });
 
   const handleGameOver = useCallback((userName: any, score: any) => {
