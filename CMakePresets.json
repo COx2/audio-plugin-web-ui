@@ -55,14 +55,8 @@
             "name": "base",
             "hidden": true,
             "targets":[
-                "WebGain_All",
-                "WebGain_CLAP",
-                "DenoGain_All",
-                "DenoGain_CLAP",
-                "WebVisualizer_All",
-                "WebVisualizer_CLAP",
-                "ReactSynth_All",
-                "ReactSynth_CLAP"
+                "SocketGain_All",
+                "SocketGain_CLAP"
             ]
         },
         {

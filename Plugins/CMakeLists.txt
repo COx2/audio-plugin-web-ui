@@ -1,7 +1,8 @@
-add_subdirectory(WebGain)
-add_subdirectory(DenoGain)
-add_subdirectory(WebVisualizer)
-add_subdirectory(ReactSynth)
+# add_subdirectory(WebGain)
+# add_subdirectory(DenoGain)
+# add_subdirectory(WebVisualizer)
+# add_subdirectory(ReactSynth)
+add_subdirectory(SocketGain)
 
 # Experimental projects.
 # add_subdirectory(Experimental/threejs-synth)
