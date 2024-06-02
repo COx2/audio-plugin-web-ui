@@ -19,4 +19,5 @@ export async function buildWebViewBundles() {
     console.log("Deno.cwd(): " + Deno.cwd());
     await $`deno run --allow-all ${__root_directory}/Plugins/DenoGain/WebView/build-webview-bundle.ts`;
     await $`deno run --allow-all ${__root_directory}/Plugins/ReactSynth/WebView/build-webview-bundle.ts`;
+    await $`deno run --allow-all ${__root_directory}/Plugins/SocketGain/WebView/build-webview-bundle.ts`;
 }
