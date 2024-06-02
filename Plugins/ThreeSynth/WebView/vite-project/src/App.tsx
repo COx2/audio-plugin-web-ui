@@ -23,7 +23,10 @@ function App() {
             attach="background"
             args={[bgColor.r, bgColor.g, bgColor.b]}
           />
-          <Cube />
+          <Cube position={[-1.2, 1.2, 0]}/>
+          <Cube position={[1.2, 1.2, 0]}/>
+          <Cube position={[-1.2, -1.2, 0]}/>
+          <Cube position={[1.2, -1.2, 0]}/>
           <OrbitControls />
           <ambientLight args={[0xffffff]} intensity={0.2} />
           <directionalLight position={[0.3, 0.4, 1]} intensity={0.8} />
