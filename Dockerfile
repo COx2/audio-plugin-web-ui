@@ -1,7 +1,15 @@
 FROM ubuntu:22.04 AS base
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+# Install base tools.
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    curl \
+    zip \
+    unzip
+
+# Install JUCE dependencies.
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git \
     clang \
     cmake \
@@ -30,10 +38,21 @@ RUN DEBIAN_FRONTEND=noninteractive \
 
 RUN DEBIAN_FRONTEND=noninteractive \
     update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 100
-    
-# Custom build phase
+
+# Install Deno environment.
+RUN curl -fsSL https://deno.land/x/install/install.sh | sh \
+    && echo 'export DENO_INSTALL="$HOME/.deno"' >> ~/.bash_profile \
+    && echo 'export PATH="$DENO_INSTALL/bin:$PATH"' >> ~/.bash_profile
+
+# Install Node.js environment with Volta.
+RUN curl https://get.volta.sh | bash \
+    && . ~/.bash_profile \
+    && volta install node \
+    && npm install -g npm
+
+# Copy this workspace.
 COPY . /app
 
 WORKDIR /app
 
-RUN ./Scripts/build_linux_ninja.sh
+CMD ["/bin/bash", "-c", "source ~/.bash_profile && bash"]
